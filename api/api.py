@@ -7,7 +7,7 @@ from flask import Flask, jsonify
 from flask_mysqldb import MySQL
 app = Flask(__name__)
 
- # mysql.connection.commit() do if inserting into database, or posting
+# mysql.connection.commit() do if inserting into database, or posting
 
 # Configure db
 app.config['MYSQL_HOST'] = db.mysql_host
@@ -18,7 +18,6 @@ app.config['MYSQL_DB'] = db.mysql_db
 mysql = MySQL(app)
 
 class JsonExtendEncoder(json.JSONEncoder):
-
   def default(self, o):
     if isinstance(o, bytes) or isinstance(o, bytearray):
       return o.decode()
@@ -29,7 +28,6 @@ class JsonExtendEncoder(json.JSONEncoder):
     else:
       return json.JSONEncoder.default(self, o)
 
-
 def get_json_from_query(sql_statement):
   cur = mysql.connection.cursor()
   cur.execute(sql_statement)
@@ -39,13 +37,7 @@ def get_json_from_query(sql_statement):
   json_res = [dict(zip(row_headers, row)) for row in rows]
 
   cur.close()
-  print(type(json_res))
   return json.dumps(json_res, cls=JsonExtendEncoder)
-
-@app.route('/')
-def index():
-  json_str = get_json_from_query("SELECT * FROM album")
-  return {'time': time.time()}
 
 @app.route('/api/albums')
 def get_albums():
