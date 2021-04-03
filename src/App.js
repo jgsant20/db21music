@@ -4,12 +4,21 @@ import React, { useState, useEffect } from 'react';
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
+  const [currentJson, setJson] = useState(0);
 
   useEffect(() => {
-    fetch('./time').then(res => res.json()).then(date => {
+    fetch('./api/time').then(res => res.json()).then(date => {
       setCurrentTime(date.time);
     });
   }, []);
+
+  useEffect(() => {
+    fetch('./api/albums').then(res => res.json()).then(json => {
+      setJson(json);
+    });
+  }, []);
+
+  console.log(currentJson)
 
   return (
     <div className="App">

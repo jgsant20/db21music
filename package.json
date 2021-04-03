@@ -16,7 +16,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "start-api": "cd api && flask run"
+    "build-api-venv": "cd api && py -m venv venv && pip install --upgrade --force-reinstall -r requirements.txt",
+    "start-api": "cd api && venv\\Scripts\\activate && py -m flask run"
   },
   "eslintConfig": {
     "extends": [
