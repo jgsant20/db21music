@@ -15,3 +15,6 @@ Not sure if these are hard requirements, but this is what I was running. ~Justin
 5. Open up terminal, type `yarn start`
 6. Open up second terminal, type `yarn start-api`
 7. Pro$$it
+
+## How did we deploy?
+We used aws-lambda for the api, heroku for frontend, and aws rds for our cloud mysql db solution.
