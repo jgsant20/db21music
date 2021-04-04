@@ -4,18 +4,18 @@ import json
 from datetime import date
 from datetime import datetime
 from flask import Flask, jsonify
-from flask_mysqldb import MySQL
-app = Flask(__name__, static_folder="../build", static_url_path='/')
+import pymysql.cursors
+
+app = Flask(__name__)
 
 # mysql.connection.commit() do if inserting into database, or posting
 
 # Configure db
-app.config['MYSQL_HOST'] = db.mysql_host
-app.config['MYSQL_USER'] = db.mysql_user
-app.config['MYSQL_PASSWORD'] = db.mysql_password
-app.config['MYSQL_DB'] = db.mysql_db
-
-mysql = MySQL(app)
+connection = pymysql.connect(host=db.mysql_host,
+                            user=db.mysql_user,
+                            password=db.mysql_password,
+                            database=db.mysql_db,
+                            cursorclass=pymysql.cursors.DictCursor) 
 
 @app.errorhandler(404)
 def not_found(e):
@@ -33,19 +33,17 @@ class JsonExtendEncoder(json.JSONEncoder):
       return json.JSONEncoder.default(self, o)
 
 def get_json_from_query(sql_statement):
-  cur = mysql.connection.cursor()
-  cur.execute(sql_statement)
+  with connection.cursor() as cursor:
+    cursor.execute(sql_statement)
+    rows = cursor.fetchall()
+    row_headers = [x[0] for x in cursor.description]
+    json_res = [dict(zip(row_headers, row)) for row in rows]
 
-  rows = cur.fetchall()
-  row_headers = [x[0] for x in cur.description]
-  json_res = [dict(zip(row_headers, row)) for row in rows]
-
-  cur.close()
   return json.dumps(json_res, cls=JsonExtendEncoder)
 
 @app.route('/')
-def index():
-  return app.send_static_file('index.html')
+def test():
+  return "works!"
 
 @app.route('/api/albums')
 def get_albums():
