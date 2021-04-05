@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "build": "webpack --mode production --config webpack.config.js",
-    "dev": "webpack serve --open --mode development",
+    "start": "webpack serve --open --mode development",
     "api-build-env": "cd ../api && python -m venv venv && venv\\Scripts\\activate && pip install --upgrade --force-reinstall -r requirements.txt",
     "start-api": "cd ../api && venv\\Scripts\\activate && flask run"
   },
