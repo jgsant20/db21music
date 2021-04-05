@@ -12,12 +12,12 @@ const App = () => (
           <h1>{process.env.API_URL}</h1>
           <Home />
         </Route>
-      </Switch>
-      <Link to="/Login">Login</Link>
+  <Link to="/Login">Login</Link>
       <Route exact path="/login">
         <h1>{process.env.API_URL}</h1>
           <Login />
         </Route>
+      </Switch>
     </BrowserRouter>
   </>
 );
