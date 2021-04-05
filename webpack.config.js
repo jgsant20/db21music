@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 
 module.exports = (env, options) => {
 
-  const envPath = `${path.join(__dirname)}/.env.development`;
+  const envPath = `${path.join(__dirname)}/.env.${options.mode}`;
   const fileEnv = dotenv.config({ path: envPath }).parsed;
 
   // reduce it to a nice object, the same as before
