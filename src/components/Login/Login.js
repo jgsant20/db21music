@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import "./Login.css";
 import { EvalSourceMapDevToolPlugin } from "webpack";
 
-export default function Login() {
+const Login = () => {
     const [email, setEmail] = useState(""); //useState creates a Hook so that we can store the value of "email" that the user inputs
     // we use this Hook to validate the users login information with the dbms
     const [password, setPassword] = useState("");
@@ -44,3 +44,4 @@ export default function Login() {
         </div>
     );
 }
+export default Login;
