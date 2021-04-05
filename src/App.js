@@ -7,14 +7,14 @@ const App = () => (
   <>
     <BrowserRouter>
       <Link to="/home">Home</Link>
+      <Link to="/Login">Login</Link>
       <Switch>
         <Route exact path="/home">
           <h1>{process.env.API_URL}</h1>
           <Home />
         </Route>
-  <Link to="/Login">Login</Link>
-      <Route exact path="/login">
-        <h1>{process.env.API_URL}</h1>
+       <Route exact path="/login">
+          <h1>{process.env.API_URL}</h1>
           <Login />
         </Route>
       </Switch>
