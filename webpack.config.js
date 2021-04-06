@@ -30,9 +30,9 @@ module.exports = (env, options) => {
           }
         },
         { 
-          test: /\.css$/, 
-          use: [ 'style-loader', 'css-loader' ] 
-        }
+          test:  /\.(scss|css)$/, 
+          use: [ 'style-loader', 'css-loader', 'sass-loader' ] 
+        },
       ],
     },
     plugins: [
@@ -41,6 +41,13 @@ module.exports = (env, options) => {
     ],
     devServer: {
       historyApiFallback: true
+    },
+    resolve: {
+      alias: {
+        '@Src': path.resolve(__dirname, 'src/'),
+        '@Components': path.resolve(__dirname, 'src/components/'),
+        '@Themes': path.resolve(__dirname, 'src/themes/')
+      }
     }
   }
 };
