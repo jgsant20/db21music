@@ -1,0 +1,28 @@
+@import '@Themes/colors.scss';
+
+.left-nav-bar {
+  background-color: $left-navbar-color;
+  width: $left-navbar-width;
+  padding: 50px 0 0 0;
+}
+
+.navigation-button {
+  color: $text-color;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.navigation-text {
+  color: $text-color;
+  transform: scale(1.2);
+}
+
+.navigation-icon {
+  color: $text-color;
+  transform: scale(1.4);
+}
+
+a:-webkit-any-link {
+  color: white;
+  text-decoration: none;
+}

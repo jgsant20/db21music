@@ -5,12 +5,17 @@ import Login from "./components/Login/Login"
 import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 const App = () => (
   <>
-    <BrowserRouter basename = "/login">
+import '@Themes/colors.scss';
+    <BrowserRouter>
       <Link to="/home">Home</Link>
       <Link to="/login">Login</Link>
       <Switch>
+        <Route exact path="/">
+          <div style={{color: 'blue'}}>
+            <Link to="/home">Click-to-go-to-home</Link>
+          </div>
+        </Route>
         <Route exact path="/home">
-          <h1>{process.env.API_URL}</h1>
           <Home />
         </Route>
        <Route exact path="/login">

@@ -18,10 +18,6 @@ connection = pymysql.connect(host=db.mysql_host,
                             password=db.mysql_password,
                             database=db.mysql_db,
                             cursorclass=pymysql.cursors.DictCursor) 
-
-@app.errorhandler(404)
-def not_found(e):
-    return app.send_static_file('index.html')
     
 class JsonExtendEncoder(json.JSONEncoder):
   def default(self, o):
