@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import Home from './Home';
-import Login from "./Login"
+import Login from "./components/Login/Login"
 import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 
 import '@Themes/colors.scss';
@@ -19,7 +19,7 @@ const App = () => (
           <Home />
         </Route>
        <Route exact path="/login">
-          <h1>{process.env.API_URL}</h1>
+          <h2>{process.env.API_URL}</h2>
           <Login />
         </Route>
       </Switch>
