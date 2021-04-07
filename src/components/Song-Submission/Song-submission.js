@@ -97,6 +97,7 @@ const SongSubmission = () => {
                         name={contribID}
                         data-idx={idx}
                         id={contribID}
+                        className = "name"
                         value={contributorState[idx].name}
                         onChange={handleContributorChange}
                         />
