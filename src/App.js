@@ -19,7 +19,7 @@ const App = () => (
           <Home />
         </Route>
        <Route exact path="/login">
-          <h2>{process.env.API_URL}</h2>
+          <h1>{process.env.API_URL}</h1>
           <Login />
         </Route>
       </Switch>

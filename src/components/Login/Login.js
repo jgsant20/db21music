@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import "./Login.css";
-import { EvalSourceMapDevToolPlugin } from "webpack";
 
 const Login = () => {
     const [email, setEmail] = useState(""); //useState creates a Hook so that we can store the value of "email" that the user inputs
