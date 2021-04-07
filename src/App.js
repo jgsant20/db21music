@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import Home from './Home';
+import Login from "./Login"
 import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 
 import '@Themes/colors.scss';
@@ -16,6 +17,9 @@ const App = () => (
         </Route>
         <Route exact path="/home">
           <Home />
+        </Route>
+        <Route exact path="/login">
+          <Login />
         </Route>
       </Switch>
     </BrowserRouter>
