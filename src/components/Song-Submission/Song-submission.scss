@@ -1,0 +1,14 @@
+
+.song-submission {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin-top: 20%;
+
+  &__container {
+    width: 50%;
+    margin: 0 auto;
+    color: white;
+    text-align: left;
+  }
+}

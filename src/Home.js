@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Route, Switch, useRouteMatch } from 'react-router-dom';
 import useFetch from './useFetch';
 
 import LeftNavBar from '@Components/left-nav-bar/LeftNavBar';
@@ -11,7 +11,9 @@ import './Home.scss';
 const Home = () => {
   const { data, isPending, error } = useFetch('/api/time');
 
-  console.log(data)
+	const { path, url } = useRouteMatch();
+
+  console.log(`${path}`)
 
 	return (
 		<div className="home">

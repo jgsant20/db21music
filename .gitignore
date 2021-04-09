@@ -28,3 +28,4 @@ venv-linux
 __pycache__
 
 db.py
+keys.py
