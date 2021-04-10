@@ -56,12 +56,12 @@ s3_bucket_name = 's3bucketname'
 ```
 
 ## Commands (Windows):
-- yarn start
-- yarn start-api
+- `yarn start`
+- `yarn start-api`
 
 ## Commands (Mac):
-- yarn start
-- yarn start-api-mac
+- `yarn start`
+- `yarn start-api-mac`
 
 ## Justin-only deploy related update commands:
 - `serverless deploy` 
