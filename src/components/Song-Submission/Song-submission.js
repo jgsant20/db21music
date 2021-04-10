@@ -7,12 +7,8 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 const SongSubmission = () => {
   const [songNameState, setSongNameState] = useState("");
-  const handleSongNameChange = (e) => setSongNameState({
-    ...songNameState,
-    [e.target.songName]: [e.target.value]
-})
 
-  const blankContributor = { name: "" };
+  const blankContributor = { idNum: '', name: '' };
   const [contributorState, setContributorState] = useState([
     { ...blankContributor },
     ]);
@@ -20,44 +16,67 @@ const SongSubmission = () => {
   const addContributor = () => {
     setContributorState([...contributorState, {...blankContributor}]);
   };
-
-  const handleContributorChange = (e) => {
-    const updatedContributors = [...contributorState];
-    updatedContributors[e.target.dataset.idx][e.target.className] = e.target.value;
-    setContributorState(updatedContributors);
+  
+  const removeContributor = () => {
+    const list = [...contributorState];
+      if (list.length != 1){
+        list.pop()
+      }
+      setContributorState(list);
   };
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isFilePicked, setIsFilePicked] = useState(false);
+  const handleContributorChange = (i, e) => {
+    const updatedContributors = [...contributorState];
+    updatedContributors[i][e.target.name] = e.target.value;
+    setContributorState(updatedContributors);
 
-  const fileChangeHandler = (e) => {
-    setSelectedFile(e.target.files[0]);
-    setIsFilePicked(true);
+  };
+
+  const [selectedMP3File, setSelectedMP3File] = useState(null);
+  const [isFileMP3Picked, setIsFileMP3Picked] = useState(false);
+
+  const mp3FileChangeHandler = (e) => {
+    setSelectedMP3File(e.target.files[0]);
+    setIsFileMP3Picked(true);
+  };
+
+  const [selectedJPGFile, setSelectedJPGFile] = useState(null);
+  const [isFileJPGPicked, setIsFileJPGPicked] = useState(false);
+
+  const jpgFileChangeHandler = (e) => {
+    setSelectedJPGFile(e.target.files[0]);
+    setIsFileJPGPicked(true);
   };
 
   const handleSubmission = () => {
     const formData = new FormData();
 
-    console.log("test")
+    formData.append('songName', songNameState);
+    formData.append('mp3File', selectedMP3File);
+    formData.append('jpgFile', selectedJPGFile);
+    formData.append('contributors', JSON.stringify(contributorState));
 
-    formData.append('File', selectedFile);
+    for (var value of formData.values()) {
+      console.log(value);
+   }
 
     fetch("/api/image",
       //insert upload API
       {
         method: 'POST',
+          mode: 'no-cors',
         body: formData,
       }
     )
-      .then((response) => response.json())
+      .then((response) => response.json)
       .then((result) => {
         console.log('Success: ', result);
       })
       .catch((error) => {
         console.error('Error: ', error);
       });
-
   };
+
   return (
     <div className="song-submission">
       <form className="song-submission__container"> 
@@ -67,45 +86,70 @@ const SongSubmission = () => {
           name="songName"
           id="songName"
           value={songNameState.songName}
-          onChange={handleSongNameChange}
+          onChange={(e)=>setSongNameState(e.target.value)}
           />
         <div>
           <label htmlFor="file">Song File (MP3)</label>
         </div>
-        <input type="file" name="file" onChange={fileChangeHandler} />
-        {isFilePicked ? (
+        <input type="file" name="mp3File" onChange={mp3FileChangeHandler} />
+        {isFileMP3Picked ? (
           <div>
-            <p>Filename: {selectedFile.name}</p>
-            <p>Filetype: {selectedFile.type}</p>
-            <p>Size in bytes: {selectedFile.size}</p>
-            <p>
-              lastModifiedDate:{' '}
-              {selectedFile.lastModifiedDate.toLocaleDateString()}
-            </p>
+            <p>Filename: {selectedMP3File.name}</p>
+            <p>Filetype: {selectedMP3File.type}</p>
+            <p>Size in bytes: {selectedMP3File.size}</p>
+          </div>
+        ) : (
+          <p>Select a file to show details</p>
+        )}
+        <div>
+          <label htmlFor="file">Song Cover (jpg)</label>
+        </div>
+        <input type="file" name="coverFile" onChange={jpgFileChangeHandler} />
+        {isFileJPGPicked ? (
+          <div>
+            <p>Filename: {selectedJPGFile.name}</p>
+            <p>Filetype: {selectedJPGFile.type}</p>
+            <p>Size in bytes: {selectedJPGFile.size}</p>
           </div>
         ) : (
           <p>Select a file to show details</p>
         )}
         <input
           type="button"
-          value="Add New Contributor"
+          value="Add Contributor"
           onClick={addContributor}
         /> 
-
+        <input
+          type="button"
+          value="Remove Contributor"
+          onClick={removeContributor}
+          />
         {
           contributorState.map((val, idx)=> {
-            let contribID = `name-${idx}`
+            let numID = `num-${idx}`
+            let nameID = `name-${idx}`
             return (
               <div key={`contributor-${idx}`}>
-              <label htmlFor={contribID}>{`Contributor #${idx + 1}`}</label>
+              <label htmlFor={numID}>{`Contributor #${idx + 1}`}</label>
               <input
               type='text'
-              name={contribID}
+              placeholder='Contributor ID'
+              name="idNum"
               data-idx={idx}
-              id={contribID}
+              id={numID}
               className = "name"
-              value={contributorState[idx].name}
-              onChange={handleContributorChange}
+              value={contributorState.idNum}
+              onChange={event => handleContributorChange(idx, event)}
+              />
+              <input
+              type='text'
+              placeholder='Contributor Name'
+              name='name'
+              data-idx={idx}
+              id={nameID}
+              className = "id"
+              value={contributorState.name}
+              onChange={event => handleContributorChange(idx, event)}
               />
               </div>
             );
