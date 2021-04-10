@@ -16,15 +16,10 @@ const Home = () => {
   console.log(`${path}`)
 
 	return (
-<<<<<<< HEAD
 		<div className="home">
 			<LeftNavBar />
 			<Content />
 			<PlayerBar />
-=======
-		<div>
-			<p>Testing, this is the current time! {isPending}</p>
->>>>>>> 320ebe4 (Dylan Test 1)
 		</div>
 	)
 }
