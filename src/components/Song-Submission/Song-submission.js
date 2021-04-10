@@ -60,7 +60,7 @@ const SongSubmission = () => {
       console.log(value);
    }
 
-    fetch("/api/image",
+    fetch(`${process.env.API_URL}/api/music`,
       //insert upload API
       {
         method: 'POST',

@@ -6,9 +6,8 @@
   "scripts": {
     "build": "webpack --mode production --config webpack.config.js",
     "start": "webpack serve --open --mode development --config webpack.config.js",
-    "api-build-env": "cd api && python -m venv venv && venv\\Scripts\\activate && pip install --upgrade --force-reinstall -r requirements.txt",
-    "start-api": "cd api && venv\\Scripts\\activate && && pip install --upgrade --force-reinstall -r requirements.txt && flask run",
-    "api-build-env-mac": "cd api && python3 -m venv venv && venv"
+    "start-api": "cd api && venv\\Scripts\\activate && flask run",
+    "start-api-mac": "cd api && source venv/bin/activate && flask run"
   },
   "author": "",
   "keywords": [],

@@ -63,5 +63,6 @@ s3_bucket_name = 's3bucketname'
 - `yarn start`
 - `yarn start-api-mac`
 
-## Justin-only deploy related update commands:
+## Justin-only deploy related update commands + other:
 - `serverless deploy` 
+- `pip install --upgrade --force-reinstall -r requirements.txt`
