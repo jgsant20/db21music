@@ -16,16 +16,8 @@ const App = () => (
             <Link to="/home">Click-to-go-to-home</Link>
           </div>
         </Route>
-<<<<<<< HEAD
         <Route path="/home" component={Home} />
         <Route exact path="/login" component={Login} />
-=======
-  <Link to="/Login">Login</Link>
-      <Route exact path="/login">
-        <h1>{process.env.API_URL}</h1>
-          <Login />
-        </Route>
->>>>>>> a2988f6 (Update App.js)
       </Switch>
     </BrowserRouter>
   </>
