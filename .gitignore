@@ -29,3 +29,5 @@ __pycache__
 
 db.py
 keys.py
+
+.vscode
