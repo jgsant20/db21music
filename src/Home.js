@@ -23,8 +23,6 @@ const Home = () => {
 			<PlayerBar />
 =======
 		<div>
-			<h1>Hello, world!</h1>
-			<h2>It is {new Date().toLocaleDateString()}.</h2>
 			<p>Testing, this is the current time! {isPending}</p>
 >>>>>>> 320ebe4 (Dylan Test 1)
 		</div>
