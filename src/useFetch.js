@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useFetch = (url) => {
+const useFetch = (url, headers={}) => {
   const [data, setData] = useState(null);
   const [isPending, setIsPending] = useState(true);
   const [error, setError] = useState(null);
@@ -9,7 +9,10 @@ const useFetch = (url) => {
     const abortCont = new AbortController();
 
     setTimeout(() => {
-      fetch(`${process.env.API_URL}${url}`, { signal: abortCont.signal })
+      fetch(`${process.env.API_URL}${url}`, { 
+				signal: abortCont.signal,
+				...headers
+			})
 				.then(res => {
 					if(!res.ok) {
 						throw Error('Could not fetch the data for that resource');

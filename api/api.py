@@ -68,15 +68,28 @@ def get_images():
 @app.route('/api/music', methods=['POST', 'GET'])
 def music_endpoint():
   if request.method == 'POST':
-    img = request.files['pic']
+    if 'mp3File' not in request.files:
+      return "Error: No music file selected", 400
 
-    if img and img.filename != '':
-      filename = secure_filename(img.filename)
-      img.save(filename)
+    if 'jpgFile' not in request.files:
+      return "Error: No jpg selected", 400
 
-      s3.upload_file(filename, keys.s3_bucket_name, "abc/filename")
+    songName = request.values['songName'] if 'songName' in request.values else 'NoName'
+    mp3File = request.files['mp3File']
+    jpgFile = request.files['jpgFile'] 
+    contributors = request.values['contributors']
 
-      return "test"
+    print(mp3File, jpgFile)
+    
+    return "Success?"
+    # if img and img.filename != '':
+    #   filename = secure_filename(img.filename)
+    #   img.save(filename)
 
+    #   s3.upload_file(filename, keys.s3_bucket_name, "abc/filename")
+
+    #   return "test"
+  if request.method == 'GET':
+    return 
 
   return 'Success'

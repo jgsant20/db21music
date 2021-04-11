@@ -18,7 +18,6 @@ const Content = () => {
 				<Route path={`${path}/songsubmission`} component={SongSubmission} />
 				<Route exact path={`${path}`} component={HomeContent} />
     	</div>
-
 		</>
 	)
 }

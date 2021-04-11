@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+
 const Content = () => {
 	const classes = useStyles();
 
@@ -28,6 +29,15 @@ const Content = () => {
       <Grid container spacing={3}>
         <Grid item xs={2}>
            <Card className={classes.card}></Card>
+        </Grid>
+        <Grid item xs={2}>
+          <Card className={classes.card}></Card>
+        </Grid>
+        <Grid item xs={2}>
+          <Card className={classes.card}></Card>
+        </Grid>
+        <Grid item xs={2}>
+          <Card className={classes.card}></Card>
         </Grid>
         <Grid item xs={2}>
           <Card className={classes.card}></Card>

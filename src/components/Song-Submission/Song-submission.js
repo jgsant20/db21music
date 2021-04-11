@@ -5,6 +5,7 @@ import "./Song-submission.scss"
 
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
+
 const SongSubmission = () => {
   const [songNameState, setSongNameState] = useState("");
 
@@ -64,7 +65,7 @@ const SongSubmission = () => {
       //insert upload API
       {
         method: 'POST',
-          mode: 'no-cors',
+        mode: 'no-cors',
         body: formData,
       }
     )
