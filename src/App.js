@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Home from './Home';
 import Login from "@Components/Login/Login"
+import Register from "@Components/Register/Register"
 import SongSubmission from "@Components/Song-Submission/Song-submission";
 import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 
@@ -18,6 +19,7 @@ const App = () => (
         </Route>
         <Route path="/home" component={Home} />
         <Route exact path="/login" component={Login} />
+        <Route exact path="/register" component={Register} />
       </Switch>
     </BrowserRouter>
   </>

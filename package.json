@@ -29,6 +29,7 @@
     "react-router-dom": "^5.2.0",
     "sass-loader": "^11.0.1",
     "styled-components": "^5.2.3",
+    "validator": "^13.5.2",
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2"
   },

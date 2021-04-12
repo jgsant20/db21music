@@ -13,7 +13,35 @@ const Login = () => {
     }
 
     function handleSubmit(event) {
-        event.preventDefault();
+        const formData = new FormData();
+    
+        const errors = validate();
+        console.log(errors);
+    
+        if(Object.keys(errors).length === 0){
+            formData.append('email', email);
+            formData.append('password', password);
+        
+            for (var value of formData.values()) {
+              console.log(value);
+           }
+        
+            fetch(`${process.env.API_URL}/api/login`,
+              //insert upload API
+              {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData,
+              }
+            )
+              .then((response) => response.json)
+              .then((result) => {
+                console.log('Success: ', result);
+              })
+              .catch((error) => {
+                console.error('Error: ', error);
+              });
+        }
     
     }
     return(
