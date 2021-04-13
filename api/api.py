@@ -73,24 +73,22 @@ def token_required(func):
       return jsonify({'Alert!': 'Invalid Token!'})
   return decorated
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def test():
   return "This returns something!"
 
 @app.route('/api/login', methods=['POST'])
 def login():
-  query_login = get_json_from_query('SELECT * FROM users WHERE userName="{}" && password="{}'.format(request.form['username'], md5_sha_hash(request.form['password'])))
+  query_login = get_json_from_query('SELECT * FROM users WHERE email="{}" && password="{}"'.format(request.form['email'], md5_sha_hash(request.form['password'])))
   if query_login:
 
-    userType = get_json_from_query('SELECT isMusician FROM users WHERE userName="{}"'.format(request.form['username']))
-
+    userType = get_json_from_query('SELECT isMusician FROM users WHERE email="{}"'.format(request.form['email']))
     token = jwt.encode({
-      'user': request.form['username'],
+      'email': request.form['email'],
       'expiration': str(datetime.utcnow() + timedelta(minutes=30)),
       'type': userType
     }, app.config['SECRET_KEY'])
-
-    return jsonify({'token': token.decode('utf-8')}) 
+    return {'token': app.config['SECRET_KEY']}
   else:
     return make_response('Unable to verify', 403, {'WWW-Authenticate': 'Basic realm: "Authentication failed!"'})
 
@@ -115,7 +113,7 @@ def register():
   insert_query(query, params)
   return "Success!"
 
-@app.route('/api/time')
+@app.route('/api/time', methods=['POST', 'GET'])
 def get_current_time():
   return {'time': time.time()}
 
