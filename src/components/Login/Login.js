@@ -39,7 +39,13 @@ const Login = () => {
                 <Button block size = "lg" type = "submit" disabled = {!validateForm}>
                     Login
                 </Button>
+
             </Form>
+            <lable>No Account? Register here.</lable>
+            <Button
+                onClick={event => window.location.href='/register'}>
+                    Register
+            </Button>
         </div>
     );
 }
