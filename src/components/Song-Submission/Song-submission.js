@@ -56,10 +56,7 @@ const SongSubmission = () => {
     formData.append('mp3File', selectedMP3File);
     formData.append('jpgFile', selectedJPGFile);
     formData.append('contributors', JSON.stringify(contributorState));
-
-    for (var value of formData.values()) {
-      console.log(value);
-   }
+    formData.append('token', localStorage.getItem('token'))
 
     fetch(`${process.env.API_URL}/api/music`,
       //insert upload API

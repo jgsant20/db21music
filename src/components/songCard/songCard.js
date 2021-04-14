@@ -53,7 +53,7 @@ export default function songCard() {
 
   return (
     <Card className={classes.root}>
-      <div container className={classes.mediaContainer}>
+      <div className={classes.mediaContainer}>
         <CardMedia
         className={classes.cover}
         component="img"

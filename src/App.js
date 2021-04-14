@@ -5,24 +5,9 @@ import Login from "@Components/Login/Login"
 import Register from "@Components/Register/Register"
 import SongSubmission from "@Components/Song-Submission/Song-submission";
 import { BrowserRouter, Route, Switch, Link, Redirect } from 'react-router-dom';
+import { PrivateRoute } from '@Src/verifyLogin'
 
 import '@Themes/colors.scss';
-
-const checkAuth = () => {
-  return false
-}
-
-const PrivateRoute = ({component, ...rest}) => {
-  return (
-    <Route {...rest} render={props => (
-      checkAuth() ? (
-        <Component {...props} />
-      ) : (
-        <Redirect to='/login' />
-      )
-    )} />
-  )
-};
 
 const App = () => (
   <>

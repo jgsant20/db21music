@@ -9,7 +9,7 @@ const useFetch = (url, headers={}) => {
     const abortCont = new AbortController();
 
     setTimeout(() => {
-      fetch(`${process.env.API_URL}${url}`, { 
+      fetch(`${process.env.API_URL}${url}?token=${localStorage.getItem('token')}`, { 
 				signal: abortCont.signal,
 				...headers
 			})

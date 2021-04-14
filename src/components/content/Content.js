@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/core/styles'
 
 import SongSubmission from "@Components/Song-Submission/Song-submission";
 import HomeContent from '@Components/home-content/HomeContent';
+import ProfileButton from '@Components/profile-button/ProfileButton';
 
 const Content = () => {
 	const { path, url } = useRouteMatch();
@@ -15,6 +16,7 @@ const Content = () => {
 	return (
 		<>
 			<div className="content">
+				<ProfileButton />
 				<Route path={`${path}/songsubmission`} component={SongSubmission} />
 				<Route exact path={`${path}`} component={HomeContent} />
     	</div>

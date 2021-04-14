@@ -9,7 +9,7 @@ import Content from '@Components/content/Content';
 import './Home.scss';
 
 const Home = () => {
-  const { data, isPending, error } = useFetch('/api/time');
+  // const { data, isPending, error } = useFetch('/api/time');
 
 	const { path, url } = useRouteMatch();
 
