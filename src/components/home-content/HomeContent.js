@@ -20,11 +20,16 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const MusicContainer = () => {
+const MusicContainer = ({obj, index}) => {
 	const classes = useStyles();
+
   return (
     <Grid item xs={2}>
-      <Card className={classes.card}></Card>
+      <Card 
+        className={classes.card}
+        obj={obj}
+        index={index}
+      ></Card>
     </Grid>
   )
 }
@@ -33,13 +38,14 @@ const Content = () => {
   const classes = useStyles();
   const { data, isPending, error } = useFetch('/api/music')
   
-  console.log(data, isPending, error)
-
 	return (
     <div className={classes.root}>
       <h1 className="content-title">Songs</h1>
       <Grid container spacing={3}>
-        <MusicContainer/>
+        {isPending ? null :
+        data.map((obj, index) => {
+          return <MusicContainer key={obj.songID} obj={obj} index={index} />
+        })}
       </Grid>
     </div>
 	)

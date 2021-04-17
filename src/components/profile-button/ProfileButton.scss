@@ -1,0 +1,9 @@
+.profile-button-logout {
+  display: 'flex';
+  color: white;
+
+  &__button {
+    position: 'absolute';
+    left: 90%;
+  }
+}

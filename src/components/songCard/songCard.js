@@ -9,6 +9,8 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import Container from '@material-ui/core/Container';
 import { BorderAllOutlined } from '@material-ui/icons';
 
+import { getUrl } from "@Src/getUrl"
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'd-flex',
@@ -47,7 +49,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function songCard() {
+export default function songCard(props) {
+  const { obj, index } = props
   const classes = useStyles();
   const theme = useTheme();
 
@@ -57,7 +60,7 @@ export default function songCard() {
         <CardMedia
         className={classes.cover}
         component="img"
-        src="https://cms-assets.tutsplus.com/uploads/users/114/posts/34296/image/Final-image.jpg"
+        src={getUrl(obj.imageURL)}
         title="Live from space album cover"
       />
       </div>

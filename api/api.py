@@ -214,11 +214,15 @@ def music_endpoint():
       return jsonify({'Alert!': 'Error somewhere!'}), 400
 
   if request.method == 'GET':
-    json_str = get_json_from_query("""
-      SELECT Song.*, Image.imageURL
-      FROM Song INNER JOIN Image
-      ON Song.imageID = Image.imageID;
-    """)
-    return json.dumps(json_str, cls=JsonExtendEncoder)
+    try:
+      json_str = get_json_from_query("""
+        SELECT Song.*, Image.imageURL
+        FROM Song INNER JOIN Image
+        ON Song.imageID = Image.imageID;
+      """)
+      return json.dumps(json_str, cls=JsonExtendEncoder)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
 
   return 'Success'
