@@ -2,12 +2,16 @@ import time
 import os
 import json
 import keys
+import io
 
 import pymysql.cursors
 import boto3
 import jwt
 import hashlib
+import mutagen
+import stagger
 
+from PIL import Image
 from datetime import date, datetime, timedelta
 from flask import Flask, jsonify, request, make_response, session
 from flask_cors import CORS
@@ -142,7 +146,7 @@ def get_images():
   return json.dumps(json_str, cls=JsonExtendEncoder)
 
 def upload_file(file, url):
-  filename = secure_filename(file.filename)
+  # filename = secure_filename(file.filename)
   # img.save(filename)
   s3.upload_fileobj(file, keys.s3_bucket_name, url)
 
@@ -160,16 +164,27 @@ def music_endpoint():
       return "Error: No music file selected", 400
 
     if 'jpgFile' not in request.files:
-      return "Error: No jpg selected", 400
+      return "Error: No available jpg", 400
+
+    mp3File = request.files['mp3File']
+    audio = stagger.read_tag(mp3File) 
+    audio_info = MP3(mp3File).info
+
+    if 'jpgFile' in request.files:
+      jpgFile = request.files['jpgFile'] 
+      jpgName = '{}.jpg'.format(audio.title)
+    elif audio.picture:
+      by_data = audio[stagger.id3.APIC][0].data
+      jpgFile = io.BytesIO(by_data)
+      jpgName = '{}.jpg'.format(audio.title)
+    else:
+      return "Error: No available jpg", 400
 
     try:
       userID = request.values.get('userID')
 
       # Setting up files
-      mp3File = request.files['mp3File']
-      jpgFile = request.files['jpgFile'] 
-      songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
-      audio_info = MP3(mp3File).info
+      songName = request.form['songName'] if request.form['songName'] != '' else audio.title
 
       # Uploading song to dbms and s3 storage
       songs_params = {
@@ -185,9 +200,9 @@ def music_endpoint():
       update_query(songs_query, songs_params)
 
       song_id = get_last_insert_id()
-      mp3_url = get_song_url(song_id, mp3File.filename)
+      mp3_url = get_song_url(song_id, songName)
       upload_file(mp3File, mp3_url)
-      
+
       # Uploading image to dbms and s3 storage
       image_params = { 'imageURL': 'placeholder' }
       image_query = "INSERT INTO Image (imageURL) VALUES (%(imageURL)s);"
@@ -195,7 +210,8 @@ def music_endpoint():
       update_query(image_query, image_params)
 
       image_id = get_last_insert_id()
-      image_url = get_image_url(image_id, jpgFile.filename)
+      image_url = get_image_url(image_id, jpgName)
+      
       upload_file(jpgFile, image_url)
 
       # Updating urls and foreign keys within db
@@ -211,7 +227,7 @@ def music_endpoint():
       """
       update_query(image_update_query, image_update_params)
       
-      return "Successfully uploaded music!"
+      return "Successfully uploaded music!", 200
     except Exception as e:
       print(e)
       return jsonify({'Alert!': 'Error somewhere!'}), 400
@@ -244,19 +260,10 @@ def favorites_endpoint():
     songID = request.form['songID']
     willFavorite = True if int(request.form['favoriting']) == 1 else False
 
-    favorites_params = {
-      'userID': userID,
-      'songID': songID,
-    }
-
-    if willFavorite:
-      favorites_query = """INSERT INTO UserFavorites (userID, songID)
-        VALUES (%(userID)s, %(songID)s);"""
-      update_query(favorites_query, favorites_params)
-    else:
-      favorites_query = """DELETE FROM UserFavorites
-        WHERE userID=%(userID)s AND songID=%(songID)s;"""
-      update_query(favorites_query, favorites_params)
+    try:
+      add_or_remove_favorite(userID, songID, willFavorite)
+    except Exception as e:
+      return {"Error": e}, 400
 
   if request.method == 'GET':
     userID = request.values.get('userID')
@@ -288,19 +295,78 @@ def mysongs_endpoint():
 
     try:
       json_str = get_json_from_query("""
-        SELECT songImage.*, UserFavorites.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        SELECT songImage.*, CASE WHEN UserFavorites.userID = {0} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
         FROM ( 
           SELECT DISTINCT Song.*, Image.imageURL
           FROM Song, Image
-          WHERE Song.UserID = {}) AS songImage
+          WHERE Song.imageID = Image.imageID  AND Song.userID = {0} ) AS songImage
         LEFT JOIN UserFavorites
-          ON songImage.songID = UserFavorites.songID
-        WHERE
-          UserFavorites.songID IS NOT null;
+          ON songImage.songID = UserFavorites.songID;
       """.format(userID))
       return json.dumps(json_str, cls=JsonExtendEncoder)
     except Exception as e:
       print(e)
-      return jsonify({'Alert!': 'Error somewhere!'}), 400
+      return jsonify({'Alert!': e}), 400
 
   return 'Success'
+
+@app.route('/api/counts', methods=['POST'])
+def playcounts_endpoint():
+  if request.method == 'POST':
+    userID = request.form['userID']
+    songID = request.form['songID']
+
+    favorites_params = {
+      'userID': userID,
+      'songID': songID,
+    }
+
+    try:
+      favorites_query = """UPDATE Song
+        SET totalPlays = totalPlays + 1
+        WHERE userID=%(userID)s AND songID=%(songID)s;
+        """
+      update_query(favorites_query, favorites_params)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': e}), 400
+
+    return 'Success'
+
+@app.route('/api/removesong', methods=['POST'])
+def removesong_endpoint():
+  if request.method == 'POST':
+    userID = request.form['userID']
+    songID = request.form['songID']
+
+    removesongs_params = {
+      'userID': userID,
+      'songID': songID,
+    }
+
+    try:
+      add_or_remove_favorite(userID, songID, 0)
+      removesongs_query = """DELETE FROM Song
+        WHERE userID=%(userID)s AND songID=%(songID)s;
+        """
+      update_query(removesongs_query, removesongs_params)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': e}), 400
+
+    return 'Success'
+
+def add_or_remove_favorite(userID, songID, willFavorite):
+  favorites_params = {
+    'userID': userID,
+    'songID': songID,
+  }
+
+  if willFavorite:
+    favorites_query = """INSERT INTO UserFavorites (userID, songID)
+      VALUES (%(userID)s, %(songID)s);"""
+    update_query(favorites_query, favorites_params)
+  else:
+    favorites_query = """DELETE FROM UserFavorites
+      WHERE userID=%(userID)s AND songID=%(songID)s;"""
+    update_query(favorites_query, favorites_params)

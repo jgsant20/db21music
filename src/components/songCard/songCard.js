@@ -12,6 +12,7 @@ import { BorderAllOutlined } from '@material-ui/icons';
 
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import CloseIcon from '@material-ui/icons/Close';
 
 import { getUrl } from "@Src/getUrl";
 import { getUserId } from "@Src/verifyLogin";
@@ -52,12 +53,16 @@ const useStyles = makeStyles((theme) => ({
     height: 30,
     width: 30,
   },
+  deleteIcon: {
+    float: 'right'
+  }
 }));
 
 export default function songCard({
   id,
   obj,
-  playMusicHooks
+  playMusicHooks,
+  deleteOnClick
 }) {
 
   const [isFavoritedVal, setIsFavoritedVal] = useState(obj.isFavorited)
@@ -95,9 +100,11 @@ export default function songCard({
     if (isFavorited()) {
       formData.append('favoriting', 0)
       setIsFavoritedVal(0)
+      obj.isFavorited = 0
     } else {
       formData.append('favoriting', 1)
       setIsFavoritedVal(1)
+      obj.isFavorited = 1
     }
 
     fetch(`${process.env.API_URL}/api/favorites?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
@@ -116,17 +123,22 @@ export default function songCard({
       });
   }
 
-  const isFavorited = () => ( isFavoritedVal === 1 ? true : false )
+  const isFavorited = () => ( obj.isFavorited === 1 || isFavoritedVal === 1 ? true : false )
 
   return (
     <Card className={classes.root}>
+      {deleteOnClick == null ? null :
+        <IconButton className={classes.deleteIcon} onClick={() => {deleteOnClick(obj)}} aria-label="delete">
+          <CloseIcon className={classes.playIcon} />
+        </IconButton>
+      }
       <div className={classes.mediaContainer}>
         <CardMedia
-        className={classes.cover}
-        component="img"
-        src={getUrl(obj.imageURL)}
-        title="img"
-      />
+          className={classes.cover}
+          component="img"
+          src={getUrl(obj.imageURL)}
+          title="img"
+        />
       </div>
       <div className={classes.details}>
         <CardContent className={classes.content}>
@@ -135,6 +147,9 @@ export default function songCard({
           </Typography>
           <Typography className={classes.contributors} variant="subtitle1" color="textSecondary">
             Contributors
+          </Typography>
+          <Typography className={classes.contributors} variant="subtitle1" color="textSecondary">
+            Playcount: {obj.totalPlays}
           </Typography>
         </CardContent>
         <div className={classes.controls}>
@@ -153,3 +168,5 @@ export default function songCard({
     </Card>
   );
 }
+
+songCard.default

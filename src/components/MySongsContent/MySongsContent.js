@@ -9,6 +9,9 @@ import useFetch from "@Src/useFetch"
 
 import MusicContainer from "@Components/MusicContainer/MusicContainer"
 
+import { getUrl } from "@Src/getUrl";
+import { getUserId } from "@Src/verifyLogin";
+
 const useStyles = makeStyles((theme) => ({
 	root: {
 		marginLeft: 10,
@@ -27,15 +30,53 @@ const HomeContent = ({
 }) => {
   const classes = useStyles();
 
+	const [flexibleMusicData, setFlexibleMusicData] = useState(musicData)
+
 	setMusicUrl("/api/mysongs")
+
+	const deleteOnClick = (obj) => {
+		if (confirm("Do you want to delete this song?")) {
+			setFlexibleMusicData(() => (
+				flexibleMusicData.filter((item) => (
+					item.songID != obj.songID
+				))
+			))
+			
+			const formData = new FormData();
+
+			formData.append('userID', getUserId())
+			formData.append('songID', obj.songID)
+
+			fetch(`${process.env.API_URL}/api/removesong?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
+				{
+					method: 'POST',
+					mode: 'no-cors',
+					body: formData,
+				}
+			)
+				.then((response) => response.json)
+				.then((result) => {
+					console.log('Success: ', result);
+				})
+				.catch((error) => {
+					console.error('Error: ', error);
+				});
+		}
+	}
 
 	return (
     <div className={classes.root}>
       <h1 className="content-title">My Songs</h1>
       <Grid container spacing={3}>
         {musicIsPending || !musicData ? null:
-        musicData.map((obj, index) => {
-          return <MusicContainer key={obj.songID} id={obj.songID} obj={obj} playMusicHooks={playMusicHooks}  />
+        flexibleMusicData.map((obj, index) => {
+          return <MusicContainer 
+						key={obj.songID} 
+						id={obj.songID} 
+						obj={obj} 
+						playMusicHooks={playMusicHooks}
+						deleteOnClick={deleteOnClick}
+				  />
         })}
       </Grid>
     </div>

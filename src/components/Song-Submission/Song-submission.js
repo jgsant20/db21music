@@ -9,6 +9,7 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 const SongSubmission = () => {
   const [songNameState, setSongNameState] = useState("");
+  const [resultState, setResultState] = useState("");
 
   const blankContributor = { idNum: '', name: '' };
   const [contributorState, setContributorState] = useState([
@@ -51,6 +52,7 @@ const SongSubmission = () => {
   };
 
   const handleSubmission = () => {
+    setResultState("loading")
     const formData = new FormData();
 
     formData.append('songName', songNameState);
@@ -67,12 +69,13 @@ const SongSubmission = () => {
         body: formData,
       }
     )
-      .then((response) => response.json)
+      .then((response) => response)
       .then((result) => {
-        console.log('Success: ', result);
+        setResultState("success")
       })
       .catch((error) => {
         console.error('Error: ', error);
+        setResultState("error")
       });
   };
 
@@ -155,6 +158,13 @@ const SongSubmission = () => {
           })
         }
         <input type= "button" value="Submit" onClick={handleSubmission} />
+        <div>
+          {resultState == "success" ? "Success!" :
+            resultState == "error" ? "Error!" :
+            resultState == "loading" ? "Loading!" :
+            null
+          }
+        </div>
       </form>
     </div>
   );

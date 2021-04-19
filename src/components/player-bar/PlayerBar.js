@@ -12,7 +12,6 @@ import SkipPreviousRoundedIcon from '@material-ui/icons/SkipPreviousRounded';
 
 import { getUrl } from '@Src/getUrl';
 
-
 // stolen code from Dan Abramov to solve stupid useInterval closure issue and states
 function useInterval(callback, delay) {
   const savedCallback = useRef();
@@ -33,7 +32,6 @@ function useInterval(callback, delay) {
     }
   }, [delay]);
 }
-
 
 const PrettoSlider = withStyles({
   root: {
@@ -80,6 +78,10 @@ const MusicPlayer = ({
     setMusicSelected,
     songIsPlaying,
     setSongIsPlaying,
+    indexInMusicArray,
+		setIndexInMusicArray,
+    skipFunc,
+    rewindFunc,
   } = playMusicHooks;
 
   const getAudioTime = () => (audioObj ? audioObj.currentTime : 0)
@@ -133,13 +135,18 @@ const MusicPlayer = ({
     if (audioObj || audioObj && audioObj.paused) {
       setCurrentTimePercentage((audioObj.currentTime / audioObjTime) * 100)
     }
+
+    if (currentTimePercentage >= 100) {
+      skipFunc()
+      setCurrentTimePercentage(0)
+    }
   }, 1000)
 
   return (
     <div className="music-player">
       <Grid container spacing={2} className="music-player-controls-wrapper">
         <Grid item>
-          <IconButton className="music-player-controls">
+          <IconButton onClick={rewindFunc} className="music-player-controls">
             <SkipPreviousRoundedIcon className="music-player-controls__icon" />
           </IconButton>
         </Grid>
@@ -152,7 +159,7 @@ const MusicPlayer = ({
           </IconButton>
         </Grid>
         <Grid item>
-          <IconButton className="music-player-controls">
+          <IconButton onClick={skipFunc} className="music-player-controls">
             <SkipNextRoundedIcon className="music-player-controls__icon" />
           </IconButton>
         </Grid>
