@@ -9,6 +9,13 @@
   z-index: 99;
   background: $playbar-color;
   min-width: 300pt;
+
+  &__status {
+    position: absolute;
+    left: 2%;
+    top: 20%;
+    color: $volume-bar-color;
+  }
 }
 
 .volume-bar {
@@ -27,10 +34,6 @@
   left: 50%;
   transform: translateX(-50%);
   top: 5%;
-
-  &-bar {
-    
-  }
 
   &-controls-wrapper {
     width: 100%;

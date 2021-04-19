@@ -7,50 +7,35 @@ import './HomeContent.scss';
 import Card from "@Components/songCard/songCard"
 import useFetch from "@Src/useFetch"
 
+import MusicContainer from "@Components/MusicContainer/MusicContainer"
+
 const useStyles = makeStyles((theme) => ({
 	root: {
 		marginLeft: 10,
 		marginRight: 10,
 	  flexGrow: 1,
 	},
-	card: {
-	  padding: theme.spacing(2),
-	  textAlign: 'center',
-	  color: theme.palette.text.secondary,
-	},
 }));
 
-const MusicContainer = ({obj, index}) => {
-	const classes = useStyles();
-
-  return (
-    <Grid item xs={2}>
-      <Card 
-        className={classes.card}
-        obj={obj}
-        index={index}
-      ></Card>
-    </Grid>
-  )
-}
-
-const Content = () => {
+const HomeContent = ({ 
+	playMusicHooks,
+	musicData,
+	musicIsPending,
+	musicError,
+}) => {
   const classes = useStyles();
-  const { data, isPending, error } = useFetch('/api/music')
-  
+
 	return (
     <div className={classes.root}>
       <h1 className="content-title">Songs</h1>
       <Grid container spacing={3}>
-        {isPending ? null :
-        data.map((obj, index) => {
-          return <MusicContainer key={obj.songID} obj={obj} index={index} />
+        {musicIsPending ? null :
+        musicData.map((obj, index) => {
+          return <MusicContainer key={obj.songID} id={obj.songID} obj={obj} playMusicHooks={playMusicHooks}  />
         })}
       </Grid>
     </div>
 	)
 }
 
-export default Content;
-
-
+export default HomeContent;

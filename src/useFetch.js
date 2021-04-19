@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getUserId } from "@Src/verifyLogin";
 
 const useFetch = (url, headers={}) => {
   const [data, setData] = useState(null);
@@ -9,7 +10,7 @@ const useFetch = (url, headers={}) => {
     const abortCont = new AbortController();
 
     setTimeout(() => {
-      fetch(`${process.env.API_URL}${url}?token=${localStorage.getItem('token')}`, { 
+      fetch(`${process.env.API_URL}${url}?token=${localStorage.getItem('token')}&userID=${getUserId()}`, { 
 				signal: abortCont.signal,
 				...headers
 			})
@@ -35,7 +36,6 @@ const useFetch = (url, headers={}) => {
 		return () => abortCont.abort();
   }, [url]);
 
-	console.log(data);
 	return { data, isPending, error }
 }
 

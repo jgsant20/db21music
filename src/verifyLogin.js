@@ -3,9 +3,14 @@ import { Route, Redirect } from 'react-router-dom';
 import jwt_decode from "jwt-decode";
 import { responsiveFontSizes } from "@material-ui/core";
 
+export const getUserId = () => {
+  let token = localStorage.getItem('token');
+  let decodedToken = jwt_decode(token);
+  return decodedToken['userID'];
+}
+
 export const setAuth = (res) => {
   localStorage.setItem('token', res['token'])
-  console.log(res['token'])
 }
 
 export const destroyAuth = () => {
@@ -23,7 +28,6 @@ export const checkAuth = () => {
     let decodedToken = jwt_decode(token);
     let expirationMS = new Date(decodedToken['expiration']).getTime();
     let currentMS = new Date().getTime();
-
 
     if (!(decodedToken['username'] && decodedToken['type'] && decodedToken['expiration'])) {
       return false; 

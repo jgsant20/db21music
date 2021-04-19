@@ -10,15 +10,34 @@ import SongSubmission from "@Components/Song-Submission/Song-submission";
 import HomeContent from '@Components/home-content/HomeContent';
 import ProfileButton from '@Components/profile-button/ProfileButton';
 
-const Content = () => {
+const Content = ({
+	playMusicHooks,
+	musicData,
+	musicIsPending,
+	musicError,
+}) => {
 	const { path, url } = useRouteMatch();
+
+	const homeContentProps = {
+		playMusicHooks,
+		musicData,
+		musicIsPending,
+		musicError,
+	}
 
 	return (
 		<>
 			<div className="content">
 				<ProfileButton />
 				<Route path={`${path}/songsubmission`} component={SongSubmission} />
-				<Route exact path={`${path}`} component={HomeContent} />
+				<Route 
+					path={`${path}/favorites`} 
+					component={SongSubmission} 
+				/>
+				<Route 
+					exact path={`${path}`} 
+					component={() => <HomeContent {...homeContentProps} />} 
+				/>
     	</div>
 		</>
 	)

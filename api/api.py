@@ -93,12 +93,12 @@ def test():
 def login():
   query_login = get_json_from_query('SELECT * FROM User WHERE username="{}" && password="{}"'.format(request.form['username'], md5_sha_hash(request.form['password'])))
   if query_login:
-
     userType = get_json_from_query('SELECT isMusician FROM User WHERE username="{}"'.format(request.form['username']))
     token = jwt.encode({
       'username': request.form['username'],
       'expiration': str(datetime.utcnow() + timedelta(minutes=30)),
-      'type': userType
+      'type': 'musician' if bool(userType[0]['isMusician']) else 'listener',
+      'userID': query_login[0]['userID']
     }, app.config['SECRET_KEY'])
     return {'token': token}
   else:
@@ -147,10 +147,10 @@ def upload_file(file, url):
   s3.upload_fileobj(file, keys.s3_bucket_name, url)
 
 def get_song_url(id, name):
-  return '/{}/{}/{}'.format('songs', id, name)
+  return '{}/{}/{}'.format('songs', id, name)
 
 def get_image_url(id, name):
-  return '/{}/{}/{}'.format('images', id, name)
+  return '{}/{}/{}'.format('images', id, name)
 
 @app.route('/api/music', methods=['POST', 'GET'])
 @token_required
@@ -214,15 +214,48 @@ def music_endpoint():
       return jsonify({'Alert!': 'Error somewhere!'}), 400
 
   if request.method == 'GET':
+    userID = request.values.get('userID')
+
     try:
       json_str = get_json_from_query("""
-        SELECT Song.*, Image.imageURL
-        FROM Song INNER JOIN Image
-        ON Song.imageID = Image.imageID;
-      """)
+        SELECT songImage.*, CASE WHEN UserFavorites.userID = 7 AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        FROM ( 
+          SELECT DISTINCT Song.*, Image.imageURL
+          FROM Song, UserFavorites, Image
+          WHERE Song.imageID = Image.imageID ) AS songImage
+        LEFT JOIN UserFavorites
+          ON songImage.songID = UserFavorites.songID;
+      """.format(userID))
       return json.dumps(json_str, cls=JsonExtendEncoder)
     except Exception as e:
       print(e)
       return jsonify({'Alert!': 'Error somewhere!'}), 400
+
+  return 'Success'
+
+@app.route('/api/favorites', methods=['POST', 'GET'])
+@token_required
+def favorites_endpoint():
+  if request.method == 'POST':
+    userID = request.form['userID']
+    songID = request.form['songID']
+    willFavorite = True if int(request.form['favoriting']) == 1 else False
+
+    favorites_params = {
+      'userID': userID,
+      'songID': songID,
+    }
+
+    if willFavorite:
+      favorites_query = """INSERT INTO UserFavorites (userID, songID)
+        VALUES (%(userID)s, %(songID)s);"""
+      update_query(favorites_query, favorites_params)
+    else:
+      favorites_query = """DELETE FROM UserFavorites
+        WHERE userID=%(userID)s AND songID=%(songID)s;"""
+      update_query(favorites_query, favorites_params)
+
+  if request.method == 'GET':
+    pass
 
   return 'Success'

@@ -1,12 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './PlayerBar.scss';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { IconButton, Grid, Slider, Typography } from '@material-ui/core';
 import { VolumeDown, VolumeUp } from '@material-ui/icons';
-
-// PauseCircleOutlineRoundedIcon, PlayCircleOutlineRoundedIcon,
-// SkipNextRoundedIcon, SkipPreviousRoundedIcon 
 
 import PauseCircleOutlineRoundedIcon from '@material-ui/icons/PauseCircleOutlineRounded';
 import PlayCircleOutlineRoundedIcon from '@material-ui/icons/PlayCircleOutlineRounded';
@@ -43,12 +40,30 @@ const PrettoSlider = withStyles({
   },
 })(Slider);
 
-const MusicPlayer = () => {
-  const [value, setValue] = React.useState(0);
+const MusicPlayer = ({
+  playMusicHooks,
+  songPlayingCurrently,
+}) => {
+  const [value, setValue] = useState(0);
 
+  const {
+    musicSelected,
+    setMusicSelected,
+    songIsPlaying,
+    setSongIsPlaying,
+  } = playMusicHooks;
+  
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  const pausePlayToggle = () => {
+    if (!songIsPlaying && songPlayingCurrently != null) {  
+      setSongIsPlaying(true)
+    } else {
+      setSongIsPlaying(false)
+    }
+  }
 
   return (
     <div className="music-player">
@@ -59,8 +74,11 @@ const MusicPlayer = () => {
           </IconButton>
         </Grid>
         <Grid item>
-          <IconButton className="music-player-controls">
-            <PauseCircleOutlineRoundedIcon className="music-player-controls__icon" />
+          <IconButton onClick={pausePlayToggle} className="music-player-controls">
+            {songIsPlaying ?
+              <PauseCircleOutlineRoundedIcon className="music-player-controls__icon" /> :
+              <PlayCircleOutlineRoundedIcon className="music-player-controls__icon" />
+            }
           </IconButton>
         </Grid>
         <Grid item>
@@ -78,9 +96,24 @@ const MusicPlayer = () => {
   )
 }
 
-const PlayerBar = () => {
-  const [value, setValue] = React.useState(30);
+const MusicStatus = ({
+  playMusicHooks,
+  songPlayingCurrently,
+}) => {
+  const { musicSelected, setMusicSelected } = playMusicHooks;
+  const isPlaying = () => ( musicSelected != 0 )
+  const idleText = () => ( songPlayingCurrently == null ? "Not playing anything" : "Paused" )
+  const getCurrentSong = () => ( songPlayingCurrently.songName == null ? "n/a" : songPlayingCurrently.songName )
 
+  return (
+    <div className="player-bar-base__status">
+      {isPlaying() ? `Currently playing ${getCurrentSong()}` : idleText()}
+    </div>
+  )
+}
+
+const PlayerBar = (props) => {
+  const [value, setValue] = useState(30);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -88,7 +121,8 @@ const PlayerBar = () => {
   return (
     <>
       <div className="player-bar-base">
-        <MusicPlayer />
+        <MusicStatus {...props} />
+        <MusicPlayer {...props} />
         <div className="volume-bar">
           <Grid container spacing={2}>
             <Grid item>

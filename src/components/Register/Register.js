@@ -42,7 +42,6 @@ const Register = () => {
     const formData = new FormData();
     
     const errors = validate();
-    console.log(errors);
 
     if(Object.keys(errors).length === 0){
         formData.append('email', emailState);
