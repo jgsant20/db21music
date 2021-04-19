@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './PlayerBar.scss';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
@@ -9,6 +9,31 @@ import PauseCircleOutlineRoundedIcon from '@material-ui/icons/PauseCircleOutline
 import PlayCircleOutlineRoundedIcon from '@material-ui/icons/PlayCircleOutlineRounded';
 import SkipNextRoundedIcon from '@material-ui/icons/SkipNextRounded';
 import SkipPreviousRoundedIcon from '@material-ui/icons/SkipPreviousRounded';
+
+import { getUrl } from '@Src/getUrl';
+
+
+// stolen code from Dan Abramov to solve stupid useInterval closure issue and states
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
+
 
 const PrettoSlider = withStyles({
   root: {
@@ -41,10 +66,14 @@ const PrettoSlider = withStyles({
 })(Slider);
 
 const MusicPlayer = ({
+  volume,
+  setVolume,
   playMusicHooks,
-  songPlayingCurrently,
 }) => {
-  const [value, setValue] = useState(0);
+  const [currentTimePercentage, setCurrentTimePercentage] = useState(0);
+  const [audioObj, setAudioObj] = useState(null);
+  const [audioObjTime, setAudioObjTime] = useState(0)
+  const [timer, setTimer] = useState(0);
 
   const {
     musicSelected,
@@ -52,18 +81,59 @@ const MusicPlayer = ({
     songIsPlaying,
     setSongIsPlaying,
   } = playMusicHooks;
-  
+
+  const getAudioTime = () => (audioObj ? audioObj.currentTime : 0)
+
+  useEffect(() => {
+    if (audioObj) {
+      audioObj.pause()
+    }
+    if (musicSelected) {
+      let audio = new Audio(getUrl(musicSelected.songURL));
+      audio.play()
+      audio.volume = volume
+      audio.currentTime = 0
+      setCurrentTimePercentage(0)
+
+      audio.addEventListener('loadedmetadata', (e) => {
+        setAudioObjTime(e.target.duration);
+        setAudioObj(audio)
+      });
+    }
+  }, [musicSelected])
+
+  useEffect(() => {
+    if (audioObj) {
+      audioObj.volume = volume
+    }
+  }, [volume])
+
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setCurrentTimePercentage(newValue);
+    if (audioObj) {
+      audioObj.currentTime = audioObjTime * (newValue / 100);
+    }
   };
 
+  const audioTimeTo100 = (val) => {
+    return audioObjTime != 0 ? (val / audioObjTime) * 100 : 0
+  }
+
   const pausePlayToggle = () => {
-    if (!songIsPlaying && songPlayingCurrently != null) {  
+    if (!songIsPlaying && musicSelected != null) {  
       setSongIsPlaying(true)
+      audioObj && audioObj.play()
     } else {
       setSongIsPlaying(false)
+      audioObj && audioObj.pause()
     }
-  }
+  }  
+
+  useInterval(() => {
+    if (audioObj || audioObj && audioObj.paused) {
+      setCurrentTimePercentage((audioObj.currentTime / audioObjTime) * 100)
+    }
+  }, 1000)
 
   return (
     <div className="music-player">
@@ -89,7 +159,7 @@ const MusicPlayer = ({
       </Grid>
       <Grid container spacing={2} className="music-player-bar">
         <Grid item xs>
-          <PrettoSlider value={value} onChange={handleChange} aria-labelledby="continuous-slider" />
+          <PrettoSlider value={currentTimePercentage} onChange={handleChange} aria-labelledby="continuous-slider" />
         </Grid>
       </Grid>
     </div>
@@ -98,38 +168,48 @@ const MusicPlayer = ({
 
 const MusicStatus = ({
   playMusicHooks,
-  songPlayingCurrently,
 }) => {
-  const { musicSelected, setMusicSelected } = playMusicHooks;
-  const isPlaying = () => ( musicSelected != 0 )
-  const idleText = () => ( songPlayingCurrently == null ? "Not playing anything" : "Paused" )
-  const getCurrentSong = () => ( songPlayingCurrently.songName == null ? "n/a" : songPlayingCurrently.songName )
+  const {
+    musicSelected,
+    setMusicSelected,
+    songIsPlaying,
+    setSongIsPlaying,
+  } = playMusicHooks;
+
+  const idleText = () => ( musicSelected == null ? "Not playing anything" : "Paused" )
+  const getCurrentSong = () => ( musicSelected == null ? "n/a" : musicSelected.songName )
 
   return (
     <div className="player-bar-base__status">
-      {isPlaying() ? `Currently playing ${getCurrentSong()}` : idleText()}
+      {songIsPlaying ? `Currently playing ${getCurrentSong()}` : idleText()}
     </div>
   )
 }
 
 const PlayerBar = (props) => {
-  const [value, setValue] = useState(30);
+  const [volume, setVolume] = useState(0.05);
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setVolume(newValue / 100);
   };
+
+  const musicPlayerProps = {
+    volume,
+    setVolume,
+    ...props
+  }
 
   return (
     <>
       <div className="player-bar-base">
         <MusicStatus {...props} />
-        <MusicPlayer {...props} />
+        <MusicPlayer {...musicPlayerProps} />
         <div className="volume-bar">
           <Grid container spacing={2}>
             <Grid item>
               <VolumeDown />
             </Grid>
             <Grid item xs>
-              <PrettoSlider value={value} onChange={handleChange} aria-labelledby="continuous-slider" />
+              <PrettoSlider value={volume * 100} onChange={handleChange} aria-labelledby="continuous-slider" />
             </Grid>
             <Grid item>
               <VolumeUp />

@@ -163,6 +163,8 @@ def music_endpoint():
       return "Error: No jpg selected", 400
 
     try:
+      userID = request.values.get('userID')
+
       # Setting up files
       mp3File = request.files['mp3File']
       jpgFile = request.files['jpgFile'] 
@@ -174,11 +176,12 @@ def music_endpoint():
         'songName': songName,
         'songLength': audio_info.length,
         'collaborators': request.form['contributors'],
-        'songURL': 'placeholder'
+        'songURL': 'placeholder',
+        'userID': userID
       }
 
-      songs_query = """INSERT INTO Song (songName, songLength, collaborators, songURL)
-        VALUES (%(songName)s, %(songLength)s, %(collaborators)s, %(songURL)s);"""
+      songs_query = """INSERT INTO Song (songName, songLength, collaborators, songURL, userID)
+        VALUES (%(songName)s, %(songLength)s, %(collaborators)s, %(songURL)s, %(userID)s);"""
       update_query(songs_query, songs_params)
 
       song_id = get_last_insert_id()
@@ -218,10 +221,10 @@ def music_endpoint():
 
     try:
       json_str = get_json_from_query("""
-        SELECT songImage.*, CASE WHEN UserFavorites.userID = 7 AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        SELECT songImage.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
         FROM ( 
           SELECT DISTINCT Song.*, Image.imageURL
-          FROM Song, UserFavorites, Image
+          FROM Song, Image
           WHERE Song.imageID = Image.imageID ) AS songImage
         LEFT JOIN UserFavorites
           ON songImage.songID = UserFavorites.songID;
@@ -256,6 +259,48 @@ def favorites_endpoint():
       update_query(favorites_query, favorites_params)
 
   if request.method == 'GET':
-    pass
+    userID = request.values.get('userID')
+
+    try:
+      json_str = get_json_from_query("""
+        SELECT songImage.*, UserFavorites.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        FROM ( 
+          SELECT DISTINCT Song.*, Image.imageURL
+          FROM Song, Image
+          WHERE Song.imageID = Image.imageID ) AS songImage
+        LEFT JOIN UserFavorites
+          ON songImage.songID = UserFavorites.songID
+        WHERE
+          UserFavorites.songID IS NOT null;
+      """.format(userID))
+      return json.dumps(json_str, cls=JsonExtendEncoder)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
+
+  return 'Success'
+
+@app.route('/api/mysongs')
+@token_required
+def mysongs_endpoint():
+  if request.method == 'GET':
+    userID = request.values.get('userID')
+
+    try:
+      json_str = get_json_from_query("""
+        SELECT songImage.*, UserFavorites.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        FROM ( 
+          SELECT DISTINCT Song.*, Image.imageURL
+          FROM Song, Image
+          WHERE Song.UserID = {}) AS songImage
+        LEFT JOIN UserFavorites
+          ON songImage.songID = UserFavorites.songID
+        WHERE
+          UserFavorites.songID IS NOT null;
+      """.format(userID))
+      return json.dumps(json_str, cls=JsonExtendEncoder)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
 
   return 'Success'

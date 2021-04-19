@@ -17,12 +17,13 @@ export const destroyAuth = () => {
   localStorage.setItem('token', '')
 }
 
-export const checkAuth = () => {
-  let token = localStorage.getItem('token')
+export const checkAuth = (userType="all") => {
+  let token = localStorage.getItem('token');
 
   if (!token || token == '') {
     return false;
   }
+
 
   try {
     let decodedToken = jwt_decode(token);
@@ -33,6 +34,8 @@ export const checkAuth = () => {
       return false; 
     } else if (currentMS > expirationMS) {
       return false;
+    } else if (userType != "all" && decodedToken['type'] != userType) {
+      return false;
     }
 
   } catch (e) {
@@ -42,11 +45,11 @@ export const checkAuth = () => {
   return true
 }
 
-export const PrivateRoute = ({component, ...rest}) => {
+export const PrivateRoute = ({component, userType, ...rest}) => {
   const Component = component;
   return (
     <Route {...rest} render={props => (
-      checkAuth() ? (
+      checkAuth(userType) ? (
         <Component {...props} />
       ) : (
         <Redirect to='/login' />

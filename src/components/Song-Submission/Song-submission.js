@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getUserId } from "@Src/verifyLogin";
 import Form from "react-bootstrap/Form";
 import Button from '@material-ui/core/Button';
 import "./Song-submission.scss"
@@ -58,7 +59,7 @@ const SongSubmission = () => {
     formData.append('contributors', JSON.stringify(contributorState));
     formData.append('token', localStorage.getItem('token'))
 
-    fetch(`${process.env.API_URL}/api/music`,
+    fetch(`${process.env.API_URL}/api/music?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
       //insert upload API
       {
         method: 'POST',

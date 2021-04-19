@@ -7,6 +7,9 @@ import { Link, useRouteMatch } from 'react-router-dom';
 import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
 import FavoriteRoundedIcon from '@material-ui/icons/FavoriteRounded';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
+import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
+
+import { checkAuth } from "@Src/verifyLogin";
 
 const NavigationButton = ({header, linkTo, IconComponent}) => {
   return (
@@ -27,7 +30,13 @@ const LeftNavBar = () => {
       <List className="navigation-button">
         <NavigationButton header="Home" linkTo={`${path}`} IconComponent={HomeRoundedIcon}/>
         <NavigationButton header="Favorites" linkTo={`${path}/favorites`} IconComponent={FavoriteRoundedIcon}/>
-        <NavigationButton header="Upload" linkTo={`${path}/songsubmission`} IconComponent={PublishRoundedIcon}/>
+
+        {!checkAuth("musician") ? null : (
+          <>  
+            <NavigationButton header="Upload" linkTo={`${path}/songsubmission`} IconComponent={PublishRoundedIcon}/>
+            <NavigationButton header="My Songs" linkTo={`${path}/mysongs`} IconComponent={LibraryMusicIcon}/>
+          </>
+        )}
       </List>
     </div>
   )

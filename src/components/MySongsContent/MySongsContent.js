@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles'
 
-import './HomeContent.scss';
+import './MySongsContent.scss';
 import Card from "@Components/songCard/songCard"
 import useFetch from "@Src/useFetch"
 
@@ -27,13 +27,13 @@ const HomeContent = ({
 }) => {
   const classes = useStyles();
 
-	setMusicUrl("/api/music")
+	setMusicUrl("/api/mysongs")
 
 	return (
     <div className={classes.root}>
-      <h1 className="content-title">Songs</h1>
+      <h1 className="content-title">My Songs</h1>
       <Grid container spacing={3}>
-        {musicIsPending || !musicData ? null :
+        {musicIsPending || !musicData ? null:
         musicData.map((obj, index) => {
           return <MusicContainer key={obj.songID} id={obj.songID} obj={obj} playMusicHooks={playMusicHooks}  />
         })}

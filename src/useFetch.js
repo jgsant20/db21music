@@ -8,6 +8,7 @@ const useFetch = (url, headers={}) => {
 
   useEffect(() => {
     const abortCont = new AbortController();
+		setIsPending(true);
 
     setTimeout(() => {
       fetch(`${process.env.API_URL}${url}?token=${localStorage.getItem('token')}&userID=${getUserId()}`, { 
@@ -34,7 +35,7 @@ const useFetch = (url, headers={}) => {
 		}, 1000);
 
 		return () => abortCont.abort();
-  }, [url]);
+  }, [url, window.location.pathname]);
 
 	return { data, isPending, error }
 }

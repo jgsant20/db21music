@@ -74,18 +74,16 @@ export default function songCard({
 
   const musicOnClick = () => {
     if (isPlaying()) {  
-      setMusicSelected(0)
+      setMusicSelected(null)
       setSongIsPlaying(false)
     } else {
-      setMusicSelected(id)
+      setMusicSelected(obj)
       setSongIsPlaying(true)
     }
   }
 
-  console.log(obj)
-
   const isPlaying = () => (
-    musicSelected == id
+    musicSelected && musicSelected.songID == id
   );
 
   const favoritesOnClick = () => {
