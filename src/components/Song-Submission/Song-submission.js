@@ -65,13 +65,16 @@ const SongSubmission = () => {
       //insert upload API
       {
         method: 'POST',
-        mode: 'no-cors',
         body: formData,
       }
     )
       .then((response) => response)
       .then((result) => {
-        setResultState("success")
+        if (result.status == 200) {
+          setResultState("success")
+        } else {
+          setResultState("error")
+        }
       })
       .catch((error) => {
         console.error('Error: ', error);
@@ -158,7 +161,7 @@ const SongSubmission = () => {
           })
         }
         <input type= "button" value="Submit" onClick={handleSubmission} />
-        <div>
+        <div className="submit-state">
           {resultState == "success" ? "Success!" :
             resultState == "error" ? "Error!" :
             resultState == "loading" ? "Loading!" :
