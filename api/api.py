@@ -151,7 +151,7 @@ def upload_file(file, url):
   s3.upload_fileobj(file, keys.s3_bucket_name, url)
 
 def get_song_url(id, name):
-  return '{}/{}/{}'.format('songs', id, name)
+  return '{}/{}/{}.mp3'.format('songs', id, name)
 
 def get_image_url(id, name):
   return '{}/{}/{}'.format('images', id, name)
@@ -164,27 +164,16 @@ def music_endpoint():
       return "Error: No music file selected", 400
 
     if 'jpgFile' not in request.files:
-      return "Error: No available jpg", 400
-
-    mp3File = request.files['mp3File']
-    audio = stagger.read_tag(mp3File) 
-    audio_info = MP3(mp3File).info
-
-    if 'jpgFile' in request.files:
-      jpgFile = request.files['jpgFile'] 
-      jpgName = '{}.jpg'.format(audio.title)
-    elif audio.picture:
-      by_data = audio[stagger.id3.APIC][0].data
-      jpgFile = io.BytesIO(by_data)
-      jpgName = '{}.jpg'.format(audio.title)
-    else:
-      return "Error: No available jpg", 400
+      return "Error: No jpg selected", 400
 
     try:
       userID = request.values.get('userID')
 
       # Setting up files
-      songName = request.form['songName'] if request.form['songName'] != '' else audio.title
+      mp3File = request.files['mp3File']
+      jpgFile = request.files['jpgFile'] 
+      songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
+      audio_info = MP3(mp3File).info
 
       # Uploading song to dbms and s3 storage
       songs_params = {
@@ -202,7 +191,7 @@ def music_endpoint():
       song_id = get_last_insert_id()
       mp3_url = get_song_url(song_id, songName)
       upload_file(mp3File, mp3_url)
-
+      
       # Uploading image to dbms and s3 storage
       image_params = { 'imageURL': 'placeholder' }
       image_query = "INSERT INTO Image (imageURL) VALUES (%(imageURL)s);"
@@ -210,8 +199,7 @@ def music_endpoint():
       update_query(image_query, image_params)
 
       image_id = get_last_insert_id()
-      image_url = get_image_url(image_id, jpgName)
-      
+      image_url = get_image_url(image_id, jpgFile.filename)
       upload_file(jpgFile, image_url)
 
       # Updating urls and foreign keys within db
@@ -227,7 +215,7 @@ def music_endpoint():
       """
       update_query(image_update_query, image_update_params)
       
-      return "Successfully uploaded music!", 200
+      return "Successfully uploaded music!"
     except Exception as e:
       print(e)
       return jsonify({'Alert!': 'Error somewhere!'}), 400

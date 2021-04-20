@@ -29,19 +29,20 @@ const HomeContent = ({
 	setMusicUrl
 }) => {
   const classes = useStyles();
-
-	const [flexibleMusicData, setFlexibleMusicData] = useState(musicData)
+	const [updateMusicData, setUpdateMusicData] = useState(musicData)
 
 	setMusicUrl("/api/mysongs")
 
 	const deleteOnClick = (obj) => {
 		if (confirm("Do you want to delete this song?")) {
-			setFlexibleMusicData(() => (
-				flexibleMusicData.filter((item) => (
+			setUpdateMusicData(() => (
+				updateMusicData.filter((item) => (
 					item.songID != obj.songID
 				))
 			))
-			
+
+			musicData = updateMusicData;
+
 			const formData = new FormData();
 
 			formData.append('userID', getUserId())
@@ -64,12 +65,14 @@ const HomeContent = ({
 		}
 	}
 
+	console.log(musicData)
+
 	return (
     <div className={classes.root}>
       <h1 className="content-title">My Songs</h1>
       <Grid container spacing={3}>
-        {musicIsPending || !musicData ? null:
-        flexibleMusicData.map((obj, index) => {
+        {musicIsPending || !updateMusicData ? null:
+        updateMusicData.map((obj, index) => {
           return <MusicContainer 
 						key={obj.songID} 
 						id={obj.songID} 
