@@ -30,7 +30,11 @@ const Login = () => {
     })
       .then(res => {
         if(!res.ok) {
+          alert("Invalid username/password!");
           throw Error('Could not fetch the data for that resource');
+        }
+        if (res.status != 200) {
+          alert("Invalid username/password!");
         }
         return res.json();
       })

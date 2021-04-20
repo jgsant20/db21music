@@ -63,7 +63,11 @@ const Register = () => {
         )
           .then(res => {
             if(!res.ok) {
+              alert("Username taken!");
               throw Error('Could not fetch the data for that resource');
+            }
+            if (res.status != 200) {
+              alert("Username taken!");
             }
             return res.json();
           })

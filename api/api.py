@@ -264,13 +264,15 @@ def favorites_endpoint():
   if request.method == 'GET':
     userID = request.values.get('userID')
 
+    print(userID)
+
     try:
       json_str = get_json_from_query("""
-        SELECT songImage.*, UserFavorites.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        SELECT songImage.*, UserFavorites.*, CASE WHEN UserFavorites.userID = {0} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
         FROM ( 
           SELECT DISTINCT Song.*, Image.imageURL
           FROM Song, Image
-          WHERE Song.imageID = Image.imageID ) AS songImage
+          WHERE Song.imageID = Image.imageID AND Song.userID = {0}) AS songImage
         LEFT JOIN UserFavorites
           ON songImage.songID = UserFavorites.songID
         WHERE

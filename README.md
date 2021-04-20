@@ -53,6 +53,10 @@ mysql_db = 'mysqldb'
 aws_access_key_id = 'awsaccesskey'
 aws_secret_access_key = 'awssecretaccesskey'
 s3_bucket_name = 's3bucketname'
+s3_url = 's3url'
+
+# secret key for jwt tokens
+secret_key = 'tokenstuff'
 ```
 
 ## Commands (Windows):
