@@ -268,15 +268,19 @@ def favorites_endpoint():
 
     try:
       json_str = get_json_from_query("""
-        SELECT songImage.*, UserFavorites.*, CASE WHEN UserFavorites.userID = {0} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
-        FROM ( 
-          SELECT DISTINCT Song.*, Image.imageURL
-          FROM Song, Image
-          WHERE Song.imageID = Image.imageID AND Song.userID = {0}) AS songImage
-        LEFT JOIN UserFavorites
-          ON songImage.songID = UserFavorites.songID
-        WHERE
-          UserFavorites.songID IS NOT null;
+        SELECT bigTable.*
+        FROM (SELECT songImage.*, CASE WHEN songImage.songID = userFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+          FROM ( 
+            SELECT DISTINCT Song.*, Image.imageURL
+            FROM Song, Image
+            WHERE Song.imageID = Image.imageID ) AS songImage
+          LEFT JOIN (
+            SELECT UserFavorites.songID
+            FROM UserFavorites
+            WHERE UserFavorites.userID = {0} ) AS userFavorites
+          ON
+            userFavorites.songID = songImage.songID) as bigTable
+        WHERE isFavorited = 1;
       """.format(userID))
       return json.dumps(json_str, cls=JsonExtendEncoder)
     except Exception as e:
@@ -293,13 +297,18 @@ def mysongs_endpoint():
 
     try:
       json_str = get_json_from_query("""
-        SELECT songImage.*, CASE WHEN UserFavorites.userID = {0} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        SELECT bigTable.*
+FROM ( SELECT songImage.*, CASE WHEN songImage.songID = userFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
         FROM ( 
           SELECT DISTINCT Song.*, Image.imageURL
           FROM Song, Image
-          WHERE Song.imageID = Image.imageID  AND Song.userID = {0} ) AS songImage
-        LEFT JOIN UserFavorites
-          ON songImage.songID = UserFavorites.songID;
+          WHERE Song.imageID = Image.imageID ) AS songImage
+        LEFT JOIN (
+          SELECT UserFavorites.songID
+          FROM UserFavorites
+          WHERE UserFavorites.userID = {0} ) AS userFavorites
+        ON songImage.songID = userFavorites.songID) as bigTable
+WHERE bigTable.userID = {0}
       """.format(userID))
       return json.dumps(json_str, cls=JsonExtendEncoder)
     except Exception as e:
