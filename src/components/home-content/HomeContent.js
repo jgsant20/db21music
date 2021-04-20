@@ -27,8 +27,6 @@ const HomeContent = ({
 }) => {
   const classes = useStyles();
 
-	console.log(musicIsPending, musicData)
-
 	setMusicUrl("/api/music")
 
 	return (
