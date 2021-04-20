@@ -127,7 +127,15 @@ def register():
     VALUES (%(firstName)s, %(lastName)s, %(email)s, %(username)s, %(password)s, %(userType)s)"""
 
   update_query(query, params)
-  return "Success!"
+
+  token = jwt.encode({
+    'username': request.form['username'],
+    'expiration': str(datetime.utcnow() + timedelta(minutes=30)),
+    'type': request.form['userType'],
+    'userID': get_last_insert_id()
+  }, app.config['SECRET_KEY'])
+
+  return {'token': token}
 
 @app.route('/api/time', methods=['POST', 'GET'])
 def get_current_time():

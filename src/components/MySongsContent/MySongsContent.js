@@ -65,8 +65,6 @@ const HomeContent = ({
 		}
 	}
 
-	console.log(musicData)
-
 	return (
     <div className={classes.root}>
       <h1 className="content-title">My Songs</h1>

@@ -66,3 +66,4 @@ s3_bucket_name = 's3bucketname'
 ## Justin-only deploy related update commands + other:
 - `serverless deploy` 
 - `pip install --upgrade --force-reinstall -r requirements.txt`
+- `zappa update dev`

@@ -4,7 +4,7 @@ import { checkAuth, setAuth } from '@Src/verifyLogin'
 
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import "./Login.css";
+import "./Login.scss";
 
 import useFetch from "@Src/useFetch"
 
@@ -52,32 +52,34 @@ const Login = () => {
 
   return(
     <div className = "Login">
-      <Form onSubmit = {handleSubmit}>
-        <Form.Group size = "lg" controlId = "username">
-          <Form.Label>Username</Form.Label>
-          <Form.Control
-          autoFocus
-          type = "username"
-          value = {username}
-          onChange = {(e) => setUsername(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group size = "lg" controlId = "password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-          type = 'password'
-          value = {password}
-          onChange = {(e) => setPassword(e.target.value)}
-          />
-        </Form.Group>
-        {/* <Button block size = "lg" type = "submit" disabled = {!validateForm}>
-          Login
-        </Button> */}
-        <input type= "button" value="Submit" onClick={handleSubmit}/>
-      </Form>
-        <Button onClick={event => window.location.href='/register'}>
-          Register
-        </Button>
+      <div className = "container">
+        <div className="heading-text">
+          Login Page
+        </div>
+        <Form onSubmit = {handleSubmit}>
+          <Form.Group size = "lg" controlId = "username">
+            <Form.Label className="text">Username</Form.Label>
+            <Form.Control
+              autoFocus
+              type = "username"
+              value = {username}
+              onChange = {(e) => setUsername(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group size = "lg" controlId = "password">
+            <Form.Label className="text">Password</Form.Label>
+            <Form.Control
+              type = 'password'
+              value = {password}
+              onChange = {(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
+          <input type= "button" value="Submit" onClick={handleSubmit}/>
+        </Form>
+          <Button className = "register-button" onClick={event => window.location.href='/register'}>
+            Register
+          </Button>
+      </div>
     </div>
   );
 }

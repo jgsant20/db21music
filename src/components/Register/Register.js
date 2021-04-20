@@ -7,7 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { isEmail } from 'validator'
 import FormHelperText from '@material-ui/core/FormHelperText'
 
-
+import { checkAuth, setAuth } from '@Src/verifyLogin'
 
 const Register = () => {
   const [emailState, setEmailState] = useState("");
@@ -56,16 +56,20 @@ const Register = () => {
        }
     
         fetch(`${process.env.API_URL}/api/register`,
-          //insert upload API
           {
             method: 'POST',
-            mode: 'no-cors',
             body: formData,
           }
         )
-          .then((response) => response.json)
-          .then((result) => {
-            console.log('Success: ', result);
+          .then(res => {
+            if(!res.ok) {
+              throw Error('Could not fetch the data for that resource');
+            }
+            return res.json();
+          })
+          .then(res => {
+            setAuth(res)
+            window.location.assign("/home")
           })
           .catch((error) => {
             console.error('Error: ', error);
