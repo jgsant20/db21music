@@ -84,6 +84,8 @@ const MusicPlayer = ({
     rewindFunc,
   } = playMusicHooks;
 
+  console.log("test")
+
   const getAudioTime = () => (audioObj ? audioObj.currentTime : 0)
 
   useEffect(() => {

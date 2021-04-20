@@ -36,10 +36,10 @@ const Home = () => {
 
 	useEffect(() => {
 		if (musicSelected) {
-			let idxResp = calculateIndex(musicData, musicSelected.songID)
-			setIndexInMusicArray(idxResp)
+			// let idxResp = calculateIndex(musicData, musicSelected.songID)
+			setIndexInMusicArray(0)
 		}	
-	}, [musicUrl, musicSelected])
+	}, [musicUrl])
 
 	useEffect(() => {
 		if (musicData) {
@@ -48,7 +48,7 @@ const Home = () => {
 	}, [indexInMusicArray])
 
 	useEffect(() => {
-		if (musicSelected) {
+		if (musicSelected != null && musicSelected != '') {
 			musicSelected.totalPlays += 1
 
 			const formData = new FormData();
