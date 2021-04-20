@@ -12,6 +12,7 @@ const useFetch = (url, headers={}) => {
 
     setTimeout(() => {
       fetch(`${process.env.API_URL}${url}?token=${localStorage.getItem('token')}&userID=${getUserId()}`, { 
+				mode: 'no-cors',
 				signal: abortCont.signal,
 				...headers
 			})

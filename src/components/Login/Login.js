@@ -27,7 +27,6 @@ const Login = () => {
     fetch(`${process.env.API_URL}/api/login`, {
       method: 'POST',
       body: formData,
-
     })
       .then(res => {
         if(!res.ok) {
