@@ -75,6 +75,9 @@ const Login = () => {
         </Button> */}
         <input type= "button" value="Submit" onClick={handleSubmit}/>
       </Form>
+        <Button onClick={event => window.location.href='/register'}>
+          Register
+        </Button>
     </div>
   );
 }
