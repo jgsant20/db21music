@@ -62,7 +62,6 @@ const SongSubmission = () => {
     formData.append('token', localStorage.getItem('token'))
 
     fetch(`${process.env.API_URL}/api/music?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
-      //insert upload API
       {
         method: 'POST',
         body: formData,
