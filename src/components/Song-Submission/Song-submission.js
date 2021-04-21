@@ -67,8 +67,8 @@ const SongSubmission = () => {
         body: formData,
       }
     )
-      .then((response) => response)
       .then((result) => {
+        console.log(result)
         if (result.status == 200) {
           setResultState("success")
         } else {
