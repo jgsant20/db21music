@@ -168,6 +168,7 @@ def get_image_url(id, name):
 @token_required
 def music_endpoint():
   if request.method == 'POST':
+    print("STOPPOINT1")
     if 'mp3File' not in request.files:
       return "Error: No music file selected", 400
 
@@ -182,6 +183,8 @@ def music_endpoint():
       jpgFile = request.files['jpgFile'] 
       songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
       audio_info = MP3(mp3File).info
+
+      print("STOPPOINT2")
 
       # Uploading song to dbms and s3 storage
       songs_params = {
@@ -210,6 +213,8 @@ def music_endpoint():
       image_url = get_image_url(image_id, jpgFile.filename)
       upload_file(jpgFile, image_url)
 
+      print("STOPPOINT3")
+
       # Updating urls and foreign keys within db
       song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id }
       image_update_query = """UPDATE Song SET songURL = %(songURL)s, imageID = %(imageID)s
@@ -222,6 +227,8 @@ def music_endpoint():
         WHERE imageID = %(imageID)s;
       """
       update_query(image_update_query, image_update_params)
+
+      print("STOPPOINT4")
       
       return "Successfully uploaded music!"
     except Exception as e:

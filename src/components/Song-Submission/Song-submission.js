@@ -79,6 +79,7 @@ const SongSubmission = () => {
     fetch(`${process.env.API_URL}/api/music?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
       {
         method: 'POST',
+        mode: 'no-cors',
         body: formData,
       }
     )
