@@ -159,7 +159,7 @@ def upload_file(file, url):
   s3.upload_fileobj(file, keys.s3_bucket_name, url)
 
 def get_song_url(id, name):
-  return '{}/{}/{}'.format('songs', id, name)
+  return '{}/{}/{}.mp3'.format('songs', id, name)
 
 def get_image_url(id, name):
   return '{}/{}/{}'.format('images', id, name)
@@ -196,21 +196,21 @@ def music_endpoint():
       update_query(songs_query, songs_params)
 
       song_id = get_last_insert_id()
-      mp3_url = get_song_url(song_id, mp3File.filename)
+      mp3_url = get_song_url(song_id, songName)
       upload_file(mp3File, mp3_url)
       
       # Uploading image to dbms and s3 storage
       image_params = { 'imageURL': 'placeholder' }
       image_query = "INSERT INTO Image (imageURL) VALUES (%(imageURL)s);"
-
       update_query(image_query, image_params)
 
+      imgfilename = songName + os.path.splitext(jpgFile.filename)[1]
       image_id = get_last_insert_id()
-      image_url = get_image_url(image_id, jpgFile.filename)
+      image_url = get_image_url(image_id, imgfilename)
       upload_file(jpgFile, image_url)
 
       # Updating urls and foreign keys within db
-      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': MP3(mp3File).info.length }
+      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': 0 }
       image_update_query = """UPDATE Song S
         SET songURL = %(songURL)s, imageID = %(imageID)s, songLength = %(songLength)s
         WHERE songID = %(songID)s;

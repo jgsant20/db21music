@@ -52,7 +52,7 @@ const SongSubmission = () => {
   };
 
   const isErrorInValidation = () => {
-    if (songNameState && selectedJPGFile && selectedMP3File &&
+    if (songNameState && selectedJPGFile && selectedMP3File && selectedMP3File.name &&
       selectedMP3File.name.split('.').pop() == "mp3") {
       return false;
     } 
