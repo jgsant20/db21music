@@ -168,6 +168,7 @@ def get_image_url(id, name):
 @token_required
 def music_endpoint():
   if request.method == 'POST':
+    return "test", 200
     print("STOPPOINT1")
     if 'mp3File' not in request.files:
       return "Error: No music file selected", 400
