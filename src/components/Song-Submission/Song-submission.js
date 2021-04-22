@@ -90,16 +90,13 @@ const SongSubmission = () => {
       })
       .catch((error) => {
         console.error('Error: ', error);
-        setResultState("error")
+        setResultState("size-limit")
       });
   };
 
   return (
     <div className="song-submission">
       <form className="song-submission__container"> 
-        <div className="asterisk">
-          10mb limit!
-        </div>
         <label htmlFor="songName">Song Name</label>
         <input
           type='text'
@@ -180,6 +177,7 @@ const SongSubmission = () => {
           {resultState == "success" ? "Success!" :
             resultState == "error" ? "Error!" :
             resultState == "validation_error" ? "Validation Error!" :
+            resultState == "size-limit" ? "Size too big!" :
             resultState == "loading" ? "Loading!" :
             null
           }
