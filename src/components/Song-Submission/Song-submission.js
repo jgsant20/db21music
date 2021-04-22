@@ -65,11 +65,10 @@ const SongSubmission = () => {
       {
         method: 'POST',
         body: formData,
-        mode: "no-cors",
+        mode: "cors",
       }
     )
       .then((result) => {
-        console.log(result)
         if (result.status == 200) {
           setResultState("success")
         } else {
