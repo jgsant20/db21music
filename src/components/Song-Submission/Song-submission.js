@@ -65,7 +65,6 @@ const SongSubmission = () => {
       {
         method: 'POST',
         body: formData,
-        mode: "cors",
       }
     )
       .then((result) => {
