@@ -54,7 +54,6 @@ const Home = () => {
 	}, [indexInMusicArray])
 
 	useEffect(() => {
-		console.log("WORKWORK", musicSelected)
 		if (musicSelected != null && musicSelected != '') {
 			musicSelected.totalPlays += 1
 
