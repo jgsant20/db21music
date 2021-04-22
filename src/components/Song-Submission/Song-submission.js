@@ -98,6 +98,9 @@ const SongSubmission = () => {
   return (
     <div className="song-submission">
       <form className="song-submission__container"> 
+        <div className="asterisk">
+          10mb limit!
+        </div>
         <label htmlFor="songName">Song Name</label>
         <input
           type='text'
