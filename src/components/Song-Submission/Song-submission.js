@@ -71,8 +71,8 @@ const SongSubmission = () => {
     const formData = new FormData();
 
     formData.append('songName', songNameState);
-    formData.append('mp3File', selectedMP3File);
     formData.append('jpgFile', selectedJPGFile);
+    formData.append('musicFile', selectedMP3File);
     formData.append('contributors', JSON.stringify(contributorState));
     formData.append('token', localStorage.getItem('token'))
 

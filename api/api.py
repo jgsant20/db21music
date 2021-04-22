@@ -155,11 +155,11 @@ def get_images():
 
 def upload_file(file, url):
   # filename = secure_filename(file.filename)
-  # img.save(filename)
+  # file.save(filename)
   s3.upload_fileobj(file, keys.s3_bucket_name, url)
 
 def get_song_url(id, name):
-  return '{}/{}/{}.mp3'.format('songs', id, name)
+  return '{}/{}/{}'.format('songs', id, name)
 
 def get_image_url(id, name):
   return '{}/{}/{}'.format('images', id, name)
@@ -168,9 +168,7 @@ def get_image_url(id, name):
 @token_required
 def music_endpoint():
   if request.method == 'POST':
-    return "test", 200
-    print("STOPPOINT1")
-    if 'mp3File' not in request.files:
+    if 'musicFile' not in request.files:
       return "Error: No music file selected", 400
 
     if 'jpgFile' not in request.files:
@@ -180,17 +178,14 @@ def music_endpoint():
       userID = request.values.get('userID')
 
       # Setting up files
-      mp3File = request.files['mp3File']
+      mp3File = request.files['musicFile']
       jpgFile = request.files['jpgFile'] 
       songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
-      audio_info = MP3(mp3File).info
-
-      print("STOPPOINT2")
 
       # Uploading song to dbms and s3 storage
       songs_params = {
         'songName': songName,
-        'songLength': audio_info.length,
+        'songLength': 'placeholder',
         'collaborators': request.form['contributors'],
         'songURL': 'placeholder',
         'userID': userID
@@ -201,7 +196,7 @@ def music_endpoint():
       update_query(songs_query, songs_params)
 
       song_id = get_last_insert_id()
-      mp3_url = get_song_url(song_id, songName)
+      mp3_url = get_song_url(song_id, mp3File.filename)
       upload_file(mp3File, mp3_url)
       
       # Uploading image to dbms and s3 storage
@@ -214,11 +209,10 @@ def music_endpoint():
       image_url = get_image_url(image_id, jpgFile.filename)
       upload_file(jpgFile, image_url)
 
-      print("STOPPOINT3")
-
       # Updating urls and foreign keys within db
-      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id }
-      image_update_query = """UPDATE Song SET songURL = %(songURL)s, imageID = %(imageID)s
+      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': MP3(mp3File).info.length }
+      image_update_query = """UPDATE Song S
+        SET songURL = %(songURL)s, imageID = %(imageID)s, songLength = %(songLength)s
         WHERE songID = %(songID)s;
       """
       update_query(image_update_query, song_update_params)
@@ -228,8 +222,6 @@ def music_endpoint():
         WHERE imageID = %(imageID)s;
       """
       update_query(image_update_query, image_update_params)
-
-      print("STOPPOINT4")
       
       return "Successfully uploaded music!"
     except Exception as e:
