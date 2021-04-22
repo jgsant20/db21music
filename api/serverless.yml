@@ -1,9 +1,17 @@
 service: db21music-api
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.8
   stage: dev
-  region: us-east-2
+  region: us-west-2
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+        - "s3:PutObject"
+        - "cloudformation:DescribeStackResource"
+      Resource: "arn:aws:s3:::myS3Bucket/*"
 plugins:
   - serverless-wsgi
   - serverless-python-requirements
@@ -17,3 +25,8 @@ functions:
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+    - venv-linux/**
