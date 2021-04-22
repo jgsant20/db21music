@@ -64,15 +64,12 @@ const SongSubmission = () => {
     fetch(`${process.env.API_URL}/api/music?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
       {
         method: 'POST',
+        mode: 'cors',
         body: formData,
       }
     )
       .then((result) => {
-        if (result.status == 200) {
-          setResultState("success")
-        } else {
-          setResultState("error")
-        }
+        setResultState("success")
       })
       .catch((error) => {
         console.error('Error: ', error);
