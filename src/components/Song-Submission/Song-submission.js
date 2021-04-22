@@ -51,7 +51,22 @@ const SongSubmission = () => {
     setIsFileJPGPicked(true);
   };
 
+  const isErrorInValidation = () => {
+    if (songNameState && selectedJPGFile && selectedMP3File &&
+      selectedMP3File.name.split('.').pop() == "mp3" &&
+      selectedJPGFile.name.split('.').pop() == "jpg") {
+      return false;
+    } 
+
+    return true;
+  }
+
   const handleSubmission = () => {
+    if (isErrorInValidation()) {
+      setResultState("validation_error")
+      return;
+    }
+
     setResultState("loading")
     const formData = new FormData();
 
@@ -64,12 +79,15 @@ const SongSubmission = () => {
     fetch(`${process.env.API_URL}/api/music?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
       {
         method: 'POST',
-        mode: 'no-cors',
         body: formData,
       }
     )
       .then((result) => {
-        setResultState("success")
+        if (result.status == 200) {
+          setResultState("success");
+        } else {
+          setResultState("error");
+        }
       })
       .catch((error) => {
         console.error('Error: ', error);
@@ -159,6 +177,7 @@ const SongSubmission = () => {
         <div className="submit-state">
           {resultState == "success" ? "Success!" :
             resultState == "error" ? "Error!" :
+            resultState == "validation_error" ? "Validation Error!" :
             resultState == "loading" ? "Loading!" :
             null
           }

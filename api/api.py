@@ -86,7 +86,7 @@ def token_required(func):
 
 @app.route('/', methods=['GET'])
 def index():
-  return "This returns something!"
+  return "This returns something! Awesome!"
 
 @app.route('/api/test', methods=['GET'])
 def test():
@@ -298,17 +298,17 @@ def mysongs_endpoint():
     try:
       json_str = get_json_from_query("""
         SELECT bigTable.*
-FROM ( SELECT songImage.*, CASE WHEN songImage.songID = userFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
-        FROM ( 
-          SELECT DISTINCT Song.*, Image.imageURL
-          FROM Song, Image
-          WHERE Song.imageID = Image.imageID ) AS songImage
-        LEFT JOIN (
-          SELECT UserFavorites.songID
-          FROM UserFavorites
-          WHERE UserFavorites.userID = {0} ) AS userFavorites
-        ON songImage.songID = userFavorites.songID) as bigTable
-WHERE bigTable.userID = {0}
+        FROM ( SELECT songImage.*, CASE WHEN songImage.songID = userFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+          FROM ( 
+            SELECT DISTINCT Song.*, Image.imageURL
+            FROM Song, Image
+            WHERE Song.imageID = Image.imageID ) AS songImage
+          LEFT JOIN (
+            SELECT UserFavorites.songID
+            FROM UserFavorites
+            WHERE UserFavorites.userID = {0} ) AS userFavorites
+          ON songImage.songID = userFavorites.songID) as bigTable
+        WHERE bigTable.userID = {0}
       """.format(userID))
       return json.dumps(json_str, cls=JsonExtendEncoder)
     except Exception as e:
@@ -323,17 +323,17 @@ def playcounts_endpoint():
     userID = request.form['userID']
     songID = request.form['songID']
 
-    favorites_params = {
+    playcounts_params = {
       'userID': userID,
       'songID': songID,
     }
 
     try:
-      favorites_query = """UPDATE Song
+      playcounts_query = """UPDATE Song
         SET totalPlays = totalPlays + 1
         WHERE userID=%(userID)s AND songID=%(songID)s;
         """
-      update_query(favorites_query, favorites_params)
+      update_query(playcounts_query, playcounts_params)
     except Exception as e:
       print(e)
       return jsonify({'Alert!': e}), 400
@@ -352,7 +352,11 @@ def removesong_endpoint():
     }
 
     try:
-      add_or_remove_favorite(userID, songID, 0)
+      favorites_query = """DELETE FROM UserFavorites
+        WHERE songID=%(songID)s;
+        """
+      update_query(favorites_query, removesongs_params)
+
       removesongs_query = """DELETE FROM Song
         WHERE userID=%(userID)s AND songID=%(songID)s;
         """

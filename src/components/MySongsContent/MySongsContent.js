@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 const HomeContent = ({ 
 	playMusicHooks,
+	setMusicData,
 	musicData,
 	musicIsPending,
 	musicError,
@@ -29,19 +30,15 @@ const HomeContent = ({
 	setMusicUrl
 }) => {
   const classes = useStyles();
-	const [updateMusicData, setUpdateMusicData] = useState(musicData)
-
 	setMusicUrl("/api/mysongs")
 
 	const deleteOnClick = (obj) => {
 		if (confirm("Do you want to delete this song?")) {
-			setUpdateMusicData(() => (
-				updateMusicData.filter((item) => (
+			setMusicData(() => (
+				musicData.filter((item) => (
 					item.songID != obj.songID
 				))
 			))
-
-			musicData = updateMusicData;
 
 			const formData = new FormData();
 
@@ -69,8 +66,8 @@ const HomeContent = ({
     <div className={classes.root}>
       <h1 className="content-title">My Songs</h1>
       <Grid container spacing={3}>
-        {musicIsPending || !updateMusicData ? null:
-        updateMusicData.map((obj, index) => {
+        {musicIsPending || !musicData ? null:
+        musicData.map((obj, index) => {
           return <MusicContainer 
 						key={obj.songID} 
 						id={obj.songID} 

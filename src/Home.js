@@ -32,7 +32,13 @@ const Home = () => {
 	const [songIsPlaying, setSongIsPlaying] = useState(false);
 	const [indexInMusicArray, setIndexInMusicArray] = useState(0);
 
-	const { data: musicData, isPending: musicIsPending, error: musicError } = useFetch(musicUrl)
+	const { data, isPending: musicIsPending, error: musicError } = useFetch(musicUrl)
+
+	const [musicData, setMusicData] = useState({});
+
+	useEffect(() => {
+		setMusicData(data)
+	}, [data])
 
 	useEffect(() => {
 		if (musicSelected) {
@@ -48,6 +54,7 @@ const Home = () => {
 	}, [indexInMusicArray])
 
 	useEffect(() => {
+		console.log("WORKWORK", musicSelected)
 		if (musicSelected != null && musicSelected != '') {
 			musicSelected.totalPlays += 1
 
@@ -86,6 +93,7 @@ const Home = () => {
 
 	const contentProps = {
 		playMusicHooks,
+		setMusicData,
 		musicData,
 		musicIsPending,
 		musicError,

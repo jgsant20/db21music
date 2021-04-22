@@ -16,6 +16,7 @@ import { PrivateRoute } from "@Src/verifyLogin";
 
 const Content = ({
 	playMusicHooks,
+	setMusicData,
 	musicData,
 	musicIsPending,
 	musicError,
@@ -26,6 +27,7 @@ const Content = ({
 
 	const homeContentProps = {
 		playMusicHooks,
+		setMusicData,
 		musicData,
 		musicIsPending,
 		musicError,

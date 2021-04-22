@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 const HomeContent = ({ 
 	playMusicHooks,
+	setMusicData,
 	musicData,
 	musicIsPending,
 	musicError,
