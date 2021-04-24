@@ -1,0 +1,27 @@
+
+.song-submission {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  width: 50%;
+  transform: translate(-50%, 0);
+
+  &__container {
+    width: 50%;
+    margin: 0 auto;
+    color: white;
+    text-align: left;
+  }
+}
+
+.submit-state {
+  font-size: 30px;
+  color: white;
+  padding-top: 10%;
+}
+
+.asterisk {
+  font-size: 30px;
+  color: white;
+  padding-bottom: 10%;
+}
