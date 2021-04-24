@@ -62,6 +62,34 @@ const HomeContent = ({
 		}
 	}
 
+	const editOnClick = (obj) => {
+		const formData = new FormData();
+
+		formData.append('userID', getUserId())
+		formData.append('songID', obj.songID)
+
+		console.log(obj.songID);
+
+		fetch('/editsong',
+		{
+		  method: 'POST',
+		  body: formData,
+		}
+	  )
+		.then((result) => {
+		  if (result.status == 200) {
+			setResultState("success");
+		  } else {
+			setResultState("error");
+		  }
+		})
+		.catch((error) => {
+		  console.error('Error: ', error);
+		  setResultState("size-limit")
+		});
+		
+	}
+
 	return (
     <div className={classes.root}>
       <h1 className="content-title">My Songs</h1>
@@ -74,6 +102,7 @@ const HomeContent = ({
 						obj={obj} 
 						playMusicHooks={playMusicHooks}
 						deleteOnClick={deleteOnClick}
+						editOnClick={editOnClick}
 				  />
         })}
       </Grid>
