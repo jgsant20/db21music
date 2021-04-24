@@ -5,6 +5,8 @@ import Button from '@material-ui/core/Button';
 import "./Song-submission.scss"
 
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import { duration } from "@material-ui/core";
+import { ContactSupportOutlined } from "@material-ui/icons";
 
 
 const SongSubmission = () => {
@@ -37,11 +39,27 @@ const SongSubmission = () => {
 
   const [selectedMP3File, setSelectedMP3File] = useState(null);
   const [isFileMP3Picked, setIsFileMP3Picked] = useState(false);
+  const [durationState, setDurationState] = useState(0);
 
   const mp3FileChangeHandler = (e) => {
+    console.log(e.target.files[0]);
     setSelectedMP3File(e.target.files[0]);
+    
+    let reader = new FileReader();
+    reader.onload = (event) => {
+
+    var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      audioContext.decodeAudioData(event.target.result, function(buffer){
+       let duration = buffer.duration;
+
+       setDurationState(duration)
+      })
+    }
     setIsFileMP3Picked(true);
-  };
+    reader.readAsArrayBuffer(e.target.files[0])
+    };
+
 
   const [selectedJPGFile, setSelectedJPGFile] = useState(null);
   const [isFileJPGPicked, setIsFileJPGPicked] = useState(false);
@@ -72,6 +90,7 @@ const SongSubmission = () => {
     formData.append('songName', songNameState);
     formData.append('jpgFile', selectedJPGFile);
     formData.append('musicFile', selectedMP3File);
+    formData.append('duration', durationState);
     formData.append('contributors', JSON.stringify(contributorState));
     formData.append('token', localStorage.getItem('token'))
 
@@ -114,6 +133,7 @@ const SongSubmission = () => {
             <p>Filename: {selectedMP3File.name}</p>
             <p>Filetype: {selectedMP3File.type}</p>
             <p>Size in bytes: {selectedMP3File.size}</p>
+            <p>Length: {selectedMP3File.duration}</p>
           </div>
         ) : (
           <p>Select a file to show details</p>
@@ -148,16 +168,6 @@ const SongSubmission = () => {
             return (
               <div key={`contributor-${idx}`}>
               <label htmlFor={numID}>{`Contributor #${idx + 1}`}</label>
-              <input
-              type='text'
-              placeholder='Contributor ID'
-              name="idNum"
-              data-idx={idx}
-              id={numID}
-              className = "name"
-              value={contributorState.idNum}
-              onChange={event => handleContributorChange(idx, event)}
-              />
               <input
               type='text'
               placeholder='Contributor Name'
