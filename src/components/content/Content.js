@@ -7,6 +7,7 @@ import { Container, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles'
 
 import SongSubmission from "@Components/Song-Submission/Song-submission";
+import EditSong from "@Components/EditSong/EditSong"
 import HomeContent from '@Components/home-content/HomeContent';
 import FavoriteContent from '@Components/FavoriteContent/FavoriteContent';
 import MySongsContent from '@Components/MySongsContent/MySongsContent';
@@ -61,6 +62,11 @@ const Content = ({
 					path={`${path}/mysongs`} 
 					component={() => <MySongsContent {...homeContentProps} />}
 					userType="musician" 
+				/>
+				<PrivateRoute
+					path={`${path}/editsong`}
+					component={EditSong}
+					usetType="musician"
 				/>
 				<Route 
 					exact path={`${path}`} 
