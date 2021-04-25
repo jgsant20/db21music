@@ -8,6 +8,8 @@ import Card from "@Components/songCard/songCard"
 import useFetch from "@Src/useFetch"
 
 import MusicContainer from "@Components/MusicContainer/MusicContainer"
+import EditSong from '@Components/EditSong/EditSong'
+import { handleClickOpen } from '@Components/EditSong/EditSong'
 
 import { getUrl } from "@Src/getUrl";
 import { getUserId } from "@Src/verifyLogin";
@@ -63,32 +65,10 @@ const HomeContent = ({
 	}
 
 	const editOnClick = (obj) => {
-		const formData = new FormData();
-
-		formData.append('userID', getUserId())
-		formData.append('songID', obj.songID)
-
-		console.log(obj.songID);
-
-		fetch('/editsong',
-		{
-		  method: 'POST',
-		  body: formData,
-		}
-	  )
-		.then((result) => {
-		  if (result.status == 200) {
-			setResultState("success");
-		  } else {
-			setResultState("error");
-		  }
-		})
-		.catch((error) => {
-		  console.error('Error: ', error);
-		  setResultState("size-limit")
-		});
 		
+
 	}
+
 
 	return (
     <div className={classes.root}>
