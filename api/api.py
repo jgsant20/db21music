@@ -254,36 +254,85 @@ def music_endpoint():
   return 'Success'
 
 
-# @app.route('/api/editsong', method=['POST'])
-# @token_required
-# def editsong_endpoint():
-#   if request.method == 'POST':
-#     if 'musicFile' not in request.files:
-#       return "Error: No music file selected", 400
+@app.route('/api/editsong', methods=['POST', 'GET'])
+@token_required
+def editsong_endpoint():
+  if request.method == 'POST':
 
-#     if 'jpgFile' not in request.files:
-#       return "Error: No jpg selected", 400
+    try:
+      userID = request.values.get('userID')
 
-#     try:
-#       userID = request.values.get('userID')
+      # Setting up files
+      mp3File = request.files['musicFile']
+      jpgFile = request.files['jpgFile'] 
+      songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
+      duration = request.form['duration']
 
-#       mp3File = request.files['musicFile']
-#       jpgFile = request.files['jpgFile']
-#       songName = request.form['songName']
-#       duration = request.form['duration']
+      # Uploading song to dbms and s3 storage
+      songs_params = {
+        'songName': songName,
+        'songLength': duration,
+        'collaborators': request.form['contributors'],
+        'songURL': 'placeholder',
+        'userID': userID
+      }
 
-#       songs_params = {
-#         'songName': songName,
-#         'songLength': duration,
-#         'collaborators': request.form['contributors'],
-#         'songURL': 'placeholder',
-#         'userID': userID
-#       }
+      songs_query = """INSERT INTO Song (songName, songLength, collaborators, songURL, userID)
+        VALUES (%(songName)s, %(songLength)s, %(collaborators)s, %(songURL)s, %(userID)s);"""
+      update_query(songs_query, songs_params)
 
-#       updateSongs_query = """UPDATE SONG S
-#         SET songName = %(songName)s
-#         WHERE songID = %(songID)s;
-#       """
+      song_id = get_last_insert_id()
+      mp3_url = get_song_url(song_id, songName)
+      upload_file(mp3File, mp3_url)
+      
+      # Uploading image to dbms and s3 storage
+      image_params = { 'imageURL': 'placeholder' }
+      image_query = "INSERT INTO Image (imageURL) VALUES (%(imageURL)s);"
+      update_query(image_query, image_params)
+
+      imgfilename = songName + os.path.splitext(jpgFile.filename)[1]
+      image_id = get_last_insert_id()
+      image_url = get_image_url(image_id, imgfilename)
+      upload_file(jpgFile, image_url)
+
+      # Updating urls and foreign keys within db
+      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': duration }
+      image_update_query = """UPDATE Song S
+        SET songURL = %(songURL)s, imageID = %(imageID)s, songLength = %(songLength)s
+        WHERE songID = %(songID)s;
+      """
+      update_query(image_update_query, song_update_params)
+
+      image_update_params = { 'imageURL': image_url, 'imageID': image_id }
+      image_update_query = """UPDATE Image SET imageURL = %(imageURL)s
+        WHERE imageID = %(imageID)s;
+      """
+      update_query(image_update_query, image_update_params)
+      
+      return "Successfully uploaded music!"
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
+
+  if request.method == 'GET':
+    userID = request.values.get('userID')
+
+    try:
+      json_str = get_json_from_query("""
+        SELECT songImage.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        FROM ( 
+          SELECT DISTINCT Song.*, Image.imageURL
+          FROM Song, Image
+          WHERE Song.imageID = Image.imageID ) AS songImage
+        LEFT JOIN UserFavorites
+          ON songImage.songID = UserFavorites.songID;
+      """.format(userID))
+      return json.dumps(json_str, cls=JsonExtendEncoder)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
+
+  return 'Success'
 
 @app.route('/api/favorites', methods=['POST', 'GET'])
 @token_required
