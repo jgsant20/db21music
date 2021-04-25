@@ -94,7 +94,7 @@ export default function songCard({
       setMusicSelected(obj)
       setSongIsPlaying(true)
     }
-  }
+  }g
 
   const isPlaying = () => (
     musicSelected && musicSelected.songID == id
