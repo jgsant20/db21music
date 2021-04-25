@@ -113,7 +113,11 @@ def register():
   query_username = get_json_from_query('SELECT * FROM User WHERE userName="{}"'.format(request.form['username']))
   if query_username:
     return make_response('Username taken!', 403)
+    if 'musicFile' not in request.files:
+      return "Error: No music file selected", 400
 
+    if 'jpgFile' not in request.files:
+      return "Error: No jpg selected", 400
   params = {
     'firstName': request.form['firstName'],
     'lastName': request.form['lastName'],
@@ -181,11 +185,12 @@ def music_endpoint():
       mp3File = request.files['musicFile']
       jpgFile = request.files['jpgFile'] 
       songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
+      duration = request.form['duration']
 
       # Uploading song to dbms and s3 storage
       songs_params = {
         'songName': songName,
-        'songLength': 'placeholder',
+        'songLength': duration,
         'collaborators': request.form['contributors'],
         'songURL': 'placeholder',
         'userID': userID
@@ -210,7 +215,7 @@ def music_endpoint():
       upload_file(jpgFile, image_url)
 
       # Updating urls and foreign keys within db
-      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': 0 }
+      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': duration }
       image_update_query = """UPDATE Song S
         SET songURL = %(songURL)s, imageID = %(imageID)s, songLength = %(songLength)s
         WHERE songID = %(songID)s;
@@ -247,6 +252,38 @@ def music_endpoint():
       return jsonify({'Alert!': 'Error somewhere!'}), 400
 
   return 'Success'
+
+
+# @app.route('/api/editsong', method=['POST'])
+# @token_required
+# def editsong_endpoint():
+#   if request.method == 'POST':
+#     if 'musicFile' not in request.files:
+#       return "Error: No music file selected", 400
+
+#     if 'jpgFile' not in request.files:
+#       return "Error: No jpg selected", 400
+
+#     try:
+#       userID = request.values.get('userID')
+
+#       mp3File = request.files['musicFile']
+#       jpgFile = request.files['jpgFile']
+#       songName = request.form['songName']
+#       duration = request.form['duration']
+
+#       songs_params = {
+#         'songName': songName,
+#         'songLength': duration,
+#         'collaborators': request.form['contributors'],
+#         'songURL': 'placeholder',
+#         'userID': userID
+#       }
+
+#       updateSongs_query = """UPDATE SONG S
+#         SET songName = %(songName)s
+#         WHERE songID = %(songID)s;
+#       """
 
 @app.route('/api/favorites', methods=['POST', 'GET'])
 @token_required
@@ -339,6 +376,7 @@ def playcounts_endpoint():
       return jsonify({'Alert!': e}), 400
 
     return 'Success'
+    
 
 @app.route('/api/removesong', methods=['POST'])
 def removesong_endpoint():
