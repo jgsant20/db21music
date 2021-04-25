@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { getUserId } from "@Src/verifyLogin";
-import IconButton from '@material-ui/core/IconButton'
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import EditIcon from '@material-ui/icons/Edit'
-import Button from '@material-ui/core/Button'
+import IconButton from "@material-ui/core/IconButton";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import EditIcon from "@material-ui/icons/Edit";
+import Button from "@material-ui/core/Button";
 
-const EditSong = ( { obj }) => {
+const EditSong = ({ obj }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
-    console.log(obj)
+    console.log(obj);
     setOpen(true);
   };
 
@@ -31,89 +31,85 @@ const EditSong = ( { obj }) => {
   const mp3FileChangeHandler = (e) => {
     console.log(e.target.files[0]);
     setSelectedMP3File(e.target.files[0]);
-    
+
     let reader = new FileReader();
     reader.onload = (event) => {
+      var audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
 
-    var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      audioContext.decodeAudioData(event.target.result, function (buffer) {
+        let duration = buffer.duration;
 
-      audioContext.decodeAudioData(event.target.result, function(buffer){
-       let duration = buffer.duration;
-
-       setDurationState(duration)
-      })
-    }
+        setDurationState(duration);
+      });
+    };
     setIsFileMP3Picked(true);
-    reader.readAsArrayBuffer(e.target.files[0])
-    };
+    reader.readAsArrayBuffer(e.target.files[0]);
+  };
 
-    const jpgFileChangeHandler = (e) => {
-      setSelectedJPGFile(e.target.files[0]);
-      setIsFileJPGPicked(true);
-    };
+  const jpgFileChangeHandler = (e) => {
+    setSelectedJPGFile(e.target.files[0]);
+    setIsFileJPGPicked(true);
+  };
 
-    const handleSubmission = () => {
-      const formData = new FormData();
-      formData.append('userID', getUserId());
-      formData.append('songID', obj.songID)
-      formData.append('songName', songNameState);
-      formData.append('jpgFile', selectedJPGFile);
-      formData.append('musicFile', selectedMP3File);
-      formData.append('duration', durationState);
-      formData.append('token', localStorage.getItem('token'))
+  const handleSubmission = () => {
+    const formData = new FormData();
+    formData.append("songID", obj.songID);
+    formData.append("songName", songNameState);
+    formData.append("jpgFile", selectedJPGFile);
+    formData.append("musicFile", selectedMP3File);
+    formData.append("duration", durationState);
 
-      for (var value of formData.values()) {
-        console.log(value);
-     }
-     fetch(`${process.env.API_URL}/api/editsong?token=${localStorage.getItem('token')}&userID=${getUserId()}`,
-     {
-       method: 'POST',
-       mode: 'no-cors',
-       body: formData,
-     }
-   )
-     .then((response) => response.json)
-     .then((result) => {
-       console.log('Success: ', result);
-     })
-     .catch((error) => {
-       console.error('Error: ', error);
-     });
-
-
-
+    for (var value of formData.values()) {
+      console.log(value);
     }
+    fetch(
+      `${process.env.API_URL}/api/editsong?token=${localStorage.getItem(
+        "token"
+      )}&userID=${getUserId()}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
+      .then((response) => response.json)
+      .then((result) => {
+        console.log("Success: ", result);
+      })
+      .catch((error) => {
+        console.error("Error: ", error);
+      });
+  };
 
   return (
     <div>
       <IconButton>
-        <EditIcon onClick={handleClickOpen}>
-        </EditIcon>
+        <EditIcon onClick={handleClickOpen}></EditIcon>
       </IconButton>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+      >
         <DialogTitle id="edit-data-form">Edit Song:</DialogTitle>
         <DialogContent>
           <label>New Song Name: </label>
-          <input 
-          type='text' 
-          name='songName'
-          value={obj.songName}
-          onChange={(e)=>setSongNameState(e.target.value)}
+          <input
+            type="text"
+            name="songName"
+            value={songNameState}
+            onChange={(e) => setSongNameState(e.target.value)}
           />
           <div>
             <label>New Song File (MP3): </label>
-            <input 
-            type="file" 
-            name="mp3File"
-            onChange={mp3FileChangeHandler}
-            />
+            <input type="file" name="mp3File" onChange={mp3FileChangeHandler} />
           </div>
           <div>
             <label>New Cover File (JPG): </label>
-            <input 
-            type='file' 
-            name="coverFile"
-            onChange={jpgFileChangeHandler}
+            <input
+              type="file"
+              name="coverFile"
+              onChange={jpgFileChangeHandler}
             />
           </div>
         </DialogContent>
@@ -128,5 +124,5 @@ const EditSong = ( { obj }) => {
       </Dialog>
     </div>
   );
-}
+};
 export default EditSong;

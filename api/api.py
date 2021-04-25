@@ -261,55 +261,64 @@ def editsong_endpoint():
 
     try:
       userID = request.values.get('userID')
+      songID = request.form['songID']
 
-      # Setting up files
-      mp3File = request.files['musicFile']
-      jpgFile = request.files['jpgFile'] 
-      songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
-      duration = request.form['duration']
+      if request.form['songName']:
+        songName = request.form['songName']
 
-      # Uploading song to dbms and s3 storage
-      songs_params = {
-        'songName': songName,
-        'songLength': duration,
-        'collaborators': request.form['contributors'],
-        'songURL': 'placeholder',
-        'userID': userID
-      }
+        songs_params = {
+          'songID': songID,
+          'songName': songName,
+          'userID': userID
+        }
 
-      songs_query = """INSERT INTO Song (songName, songLength, collaborators, songURL, userID)
-        VALUES (%(songName)s, %(songLength)s, %(collaborators)s, %(songURL)s, %(userID)s);"""
-      update_query(songs_query, songs_params)
+        songs_query = """UPDATE Song S
+          SET songName = %(songName)s
+          WHERE songID = %(songID)s AND userID = %(userID)s;"""
+        update_query(songs_query, songs_params)
 
-      song_id = get_last_insert_id()
-      mp3_url = get_song_url(song_id, songName)
-      upload_file(mp3File, mp3_url)
-      
-      # Uploading image to dbms and s3 storage
-      image_params = { 'imageURL': 'placeholder' }
-      image_query = "INSERT INTO Image (imageURL) VALUES (%(imageURL)s);"
-      update_query(image_query, image_params)
+      if 'musicFile' in request.files:
+        mp3File = request.files['musicFile']
+        mp3_url = get_song_url(songID, "updated")
+        duration = request.form['duration']
+        upload_file(mp3File, mp3_url)
 
-      imgfilename = songName + os.path.splitext(jpgFile.filename)[1]
-      image_id = get_last_insert_id()
-      image_url = get_image_url(image_id, imgfilename)
-      upload_file(jpgFile, image_url)
+        songs_params = {
+          'songID': songID,
+          'userID': userID,
+          'songURL': mp3_url,
+          'duration': duration
+        }
 
-      # Updating urls and foreign keys within db
-      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': duration }
-      image_update_query = """UPDATE Song S
-        SET songURL = %(songURL)s, imageID = %(imageID)s, songLength = %(songLength)s
-        WHERE songID = %(songID)s;
-      """
-      update_query(image_update_query, song_update_params)
+        songs_query = """UPDATE Song S
+          SET songURL = %(songURL)s
+          WHERE songID = %(songID)s AND userID = %(userID)s;"""
+        update_query(songs_query, songs_params)
 
-      image_update_params = { 'imageURL': image_url, 'imageID': image_id }
-      image_update_query = """UPDATE Image SET imageURL = %(imageURL)s
-        WHERE imageID = %(imageID)s;
-      """
-      update_query(image_update_query, image_update_params)
-      
-      return "Successfully uploaded music!"
+      if 'jpgFile' in request.files:
+        get_image_id_query = """SELECT imageID
+          FROM Song
+          WHERE songID = {};
+        """.format(songID)
+
+        json = get_json_from_query(get_image_id_query)
+        imageID = json[0]['imageID']
+
+        jpgFile = request.files['jpgFile']
+        jpgUrl = get_image_url(imageID, "updated.jpg")
+        upload_file(jpgFile, jpgUrl)
+
+        image_params = {
+          'imageURL': jpgUrl,
+          'imageID': imageID
+        }
+
+        image_query = """UPDATE Image S
+          SET imageURL = %(imageURL)s
+          WHERE imageID = %(imageID)s;"""
+        update_query(image_query, image_params)
+
+      return "Successfully updated music!"
     except Exception as e:
       print(e)
       return jsonify({'Alert!': 'Error somewhere!'}), 400
@@ -349,8 +358,6 @@ def favorites_endpoint():
 
   if request.method == 'GET':
     userID = request.values.get('userID')
-
-    print(userID)
 
     try:
       json_str = get_json_from_query("""
