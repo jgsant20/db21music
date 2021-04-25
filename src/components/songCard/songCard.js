@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
 import EditIcon from '@material-ui/icons/Edit'
+import EditSong from '@Components/EditSong/EditSong'
 import Container from '@material-ui/core/Container';
 import { BorderAllOutlined } from '@material-ui/icons';
 
@@ -46,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 10,
   },
   editDelete:{
-
+    display: 'flex'
   },
   controls: {
     display: 'flex',
@@ -59,7 +60,9 @@ const useStyles = makeStyles((theme) => ({
     width: 30,
   },
   deleteIcon: {
-    float: 'right'
+    float: 'right',
+  },
+  editIcon: {
   }
 }));
 
@@ -68,7 +71,7 @@ export default function songCard({
   obj,
   playMusicHooks,
   deleteOnClick,
-  editOnClick
+  editOnClick,
 }) {
 
   const [isFavoritedVal, setIsFavoritedVal] = useState(obj.isFavorited)
@@ -133,11 +136,11 @@ export default function songCard({
 
   return (
     <Card className={classes.root}>
-      <div classname={classes.editDelete}>
+      <div className={classes.editDelete}>
         {editOnClick == null ? null :
-        <IconButton >
-          <EditIcon />
-        </IconButton>
+        <EditSong className= {classes.editIcon}
+          obj={obj}
+        />
       }
       {deleteOnClick == null ? null :
         <IconButton className={classes.deleteIcon} onClick={() => {deleteOnClick(obj)}} aria-label="delete">
