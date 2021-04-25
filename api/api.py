@@ -291,7 +291,7 @@ def editsong_endpoint():
         }
 
         songs_query = """UPDATE Song S
-          SET songURL = %(songURL)s
+          SET songURL = %(songURL)s, songLength = %(duration)s
           WHERE songID = %(songID)s AND userID = %(userID)s;"""
         update_query(songs_query, songs_params)
 

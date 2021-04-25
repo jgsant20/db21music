@@ -9,6 +9,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import EditIcon from "@material-ui/icons/Edit";
 import Button from "@material-ui/core/Button";
 
+import "./EditSong.scss";
+
 const EditSong = ({ obj }) => {
   const [open, setOpen] = React.useState(false);
 
@@ -27,6 +29,7 @@ const EditSong = ({ obj }) => {
   const [isFileMP3Picked, setIsFileMP3Picked] = useState(false);
   const [songNameState, setSongNameState] = useState(obj.songName);
   const [durationState, setDurationState] = useState(0);
+  const [resultState, setResultState] = useState("");
 
   const mp3FileChangeHandler = (e) => {
     console.log(e.target.files[0]);
@@ -53,6 +56,7 @@ const EditSong = ({ obj }) => {
   };
 
   const handleSubmission = () => {
+    setResultState("loading");
     const formData = new FormData();
     formData.append("songID", obj.songID);
     formData.append("songName", songNameState);
@@ -75,9 +79,11 @@ const EditSong = ({ obj }) => {
       .then((response) => response.json)
       .then((result) => {
         console.log("Success: ", result);
+        setResultState("success");
       })
       .catch((error) => {
         console.error("Error: ", error);
+        setResultState("error");
       });
   };
 
@@ -121,6 +127,15 @@ const EditSong = ({ obj }) => {
             Submit
           </Button>
         </DialogActions>
+        <div className="submitting-state-edit-song">
+          {resultState == "success"
+            ? "Success!"
+            : resultState == "error"
+            ? "Error!"
+            : resultState == "loading"
+            ? "Loading!"
+            : null}
+        </div>
       </Dialog>
     </div>
   );

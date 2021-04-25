@@ -1,4 +1,3 @@
-
 .song-submission {
   position: absolute;
   top: 15%;
@@ -14,10 +13,13 @@
   }
 }
 
-.submit-state {
+.submitting-state-edit-song {
   font-size: 30px;
-  color: white;
+  color: black;
   padding-top: 10%;
+  position: absolute;
+  bottom: 10%;
+  left: 10%;
 }
 
 .asterisk {
