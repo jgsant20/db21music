@@ -63,11 +63,6 @@ const Content = ({
 					component={() => <MySongsContent {...homeContentProps} />}
 					userType="musician" 
 				/>
-				<PrivateRoute
-					path={`${path}/editsong`}
-					component={EditSong}
-					usetType="musician"
-				/>
 				<Route 
 					exact path={`${path}`} 
 					component={() => <HomeContent {...homeContentProps} />} 
