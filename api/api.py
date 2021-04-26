@@ -93,6 +93,27 @@ def test():
   print(get_json_from_query("SELECT * FROM songs"))
   return "testing..."
 
+@app.route('/api/reports', methods=['GET'])
+def getReports():
+  userID = request.values.get('userID')
+  print(userID)
+
+  userCount = get_json_from_query("SELECT COUNT(*) FROM User")[0]['COUNT(*)']
+  songLengthCount = get_json_from_query("""SELECT SUM(songLength) FROM Song WHERE userID = {} """.format(userID))[0]['SUM(songLength)']
+  songCount = get_json_from_query("""SELECT COUNT(*) FROM Song WHERE userID = {} """.format(userID))[0]['COUNT(*)']
+  totalSongCount = get_json_from_query("SELECT COUNT(*) FROM Song")[0]['COUNT(*)']
+
+  dataToReturn = {
+    "userCount": userCount,
+    "songLengthCount": songLengthCount,
+    "songCount": songCount,
+    "totalSongCount": totalSongCount
+  }
+
+  print(dataToReturn)
+
+  return json.dumps(dataToReturn)
+
 @app.route('/api/login', methods=['POST'])
 def login():
   query_login = get_json_from_query('SELECT * FROM User WHERE username="{}" && password="{}"'.format(request.form['username'], md5_sha_hash(request.form['password'])))
@@ -113,7 +134,11 @@ def register():
   query_username = get_json_from_query('SELECT * FROM User WHERE userName="{}"'.format(request.form['username']))
   if query_username:
     return make_response('Username taken!', 403)
+    if 'musicFile' not in request.files:
+      return "Error: No music file selected", 400
 
+    if 'jpgFile' not in request.files:
+      return "Error: No jpg selected", 400
   params = {
     'firstName': request.form['firstName'],
     'lastName': request.form['lastName'],
@@ -181,11 +206,12 @@ def music_endpoint():
       mp3File = request.files['musicFile']
       jpgFile = request.files['jpgFile'] 
       songName = request.form['songName'] if request.form['songName'] != '' else mp3File.filename
+      duration = request.form['duration']
 
       # Uploading song to dbms and s3 storage
       songs_params = {
         'songName': songName,
-        'songLength': 'placeholder',
+        'songLength': duration,
         'collaborators': request.form['contributors'],
         'songURL': 'placeholder',
         'userID': userID
@@ -210,7 +236,7 @@ def music_endpoint():
       upload_file(jpgFile, image_url)
 
       # Updating urls and foreign keys within db
-      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': 0 }
+      song_update_params = { 'songURL': mp3_url, 'imageID': image_id, 'songID': song_id, 'songLength': duration }
       image_update_query = """UPDATE Song S
         SET songURL = %(songURL)s, imageID = %(imageID)s, songLength = %(songLength)s
         WHERE songID = %(songID)s;
@@ -224,6 +250,96 @@ def music_endpoint():
       update_query(image_update_query, image_update_params)
       
       return "Successfully uploaded music!"
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
+
+  if request.method == 'GET':
+    userID = request.values.get('userID')
+
+    try:
+      json_str = get_json_from_query("""
+        SELECT songImage.*, CASE WHEN UserFavorites.userID = {} AND songImage.songID = UserFavorites.songID THEN 1 ELSE 0 END as "isFavorited"
+        FROM ( 
+          SELECT DISTINCT Song.*, Image.imageURL
+          FROM Song, Image
+          WHERE Song.imageID = Image.imageID ) AS songImage
+        LEFT JOIN UserFavorites
+          ON songImage.songID = UserFavorites.songID;
+      """.format(userID))
+      return json.dumps(json_str, cls=JsonExtendEncoder)
+    except Exception as e:
+      print(e)
+      return jsonify({'Alert!': 'Error somewhere!'}), 400
+
+  return 'Success'
+
+
+@app.route('/api/editsong', methods=['POST', 'GET'])
+@token_required
+def editsong_endpoint():
+  if request.method == 'POST':
+
+    try:
+      userID = request.values.get('userID')
+      songID = request.form['songID']
+
+      if request.form['songName']:
+        songName = request.form['songName']
+
+        songs_params = {
+          'songID': songID,
+          'songName': songName,
+          'userID': userID
+        }
+
+        songs_query = """UPDATE Song S
+          SET songName = %(songName)s
+          WHERE songID = %(songID)s AND userID = %(userID)s;"""
+        update_query(songs_query, songs_params)
+
+      if 'musicFile' in request.files:
+        mp3File = request.files['musicFile']
+        mp3_url = get_song_url(songID, "updated")
+        duration = request.form['duration']
+        upload_file(mp3File, mp3_url)
+
+        songs_params = {
+          'songID': songID,
+          'userID': userID,
+          'songURL': mp3_url,
+          'duration': duration
+        }
+
+        songs_query = """UPDATE Song S
+          SET songURL = %(songURL)s, songLength = %(duration)s
+          WHERE songID = %(songID)s AND userID = %(userID)s;"""
+        update_query(songs_query, songs_params)
+
+      if 'jpgFile' in request.files:
+        get_image_id_query = """SELECT imageID
+          FROM Song
+          WHERE songID = {};
+        """.format(songID)
+
+        json = get_json_from_query(get_image_id_query)
+        imageID = json[0]['imageID']
+
+        jpgFile = request.files['jpgFile']
+        jpgUrl = get_image_url(imageID, "updated.jpg")
+        upload_file(jpgFile, jpgUrl)
+
+        image_params = {
+          'imageURL': jpgUrl,
+          'imageID': imageID
+        }
+
+        image_query = """UPDATE Image S
+          SET imageURL = %(imageURL)s
+          WHERE imageID = %(imageID)s;"""
+        update_query(image_query, image_params)
+
+      return "Successfully updated music!"
     except Exception as e:
       print(e)
       return jsonify({'Alert!': 'Error somewhere!'}), 400
@@ -263,8 +379,6 @@ def favorites_endpoint():
 
   if request.method == 'GET':
     userID = request.values.get('userID')
-
-    print(userID)
 
     try:
       json_str = get_json_from_query("""
@@ -339,6 +453,7 @@ def playcounts_endpoint():
       return jsonify({'Alert!': e}), 400
 
     return 'Success'
+    
 
 @app.route('/api/removesong', methods=['POST'])
 def removesong_endpoint():

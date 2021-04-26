@@ -8,6 +8,8 @@ import Card from "@Components/songCard/songCard"
 import useFetch from "@Src/useFetch"
 
 import MusicContainer from "@Components/MusicContainer/MusicContainer"
+import EditSong from '@Components/EditSong/EditSong'
+import { handleClickOpen } from '@Components/EditSong/EditSong'
 
 import { getUrl } from "@Src/getUrl";
 import { getUserId } from "@Src/verifyLogin";
@@ -62,6 +64,12 @@ const HomeContent = ({
 		}
 	}
 
+	const editOnClick = (obj) => {
+		
+
+	}
+
+
 	return (
     <div className={classes.root}>
       <h1 className="content-title">My Songs</h1>
@@ -74,6 +82,7 @@ const HomeContent = ({
 						obj={obj} 
 						playMusicHooks={playMusicHooks}
 						deleteOnClick={deleteOnClick}
+						editOnClick={editOnClick}
 				  />
         })}
       </Grid>

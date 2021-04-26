@@ -7,12 +7,14 @@ import { Container, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles'
 
 import SongSubmission from "@Components/Song-Submission/Song-submission";
+import EditSong from "@Components/EditSong/EditSong"
 import HomeContent from '@Components/home-content/HomeContent';
 import FavoriteContent from '@Components/FavoriteContent/FavoriteContent';
 import MySongsContent from '@Components/MySongsContent/MySongsContent';
 import ProfileButton from '@Components/profile-button/ProfileButton';
 
 import { PrivateRoute } from "@Src/verifyLogin";
+import MyReportContent from '../MyReportContent/MyReportContent';
 
 const Content = ({
 	playMusicHooks,
@@ -62,11 +64,15 @@ const Content = ({
 					component={() => <MySongsContent {...homeContentProps} />}
 					userType="musician" 
 				/>
+				<PrivateRoute 
+					path={`${path}/myreports`} 
+					component={() => <MyReportContent/>}
+					userType="musician" 
+				/>
 				<Route 
 					exact path={`${path}`} 
 					component={() => <HomeContent {...homeContentProps} />} 
 				/>
-
     	</div>
 		</>
 	)

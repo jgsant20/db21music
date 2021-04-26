@@ -7,6 +7,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
+import EditIcon from '@material-ui/icons/Edit'
+import EditSong from '@Components/EditSong/EditSong'
 import Container from '@material-ui/core/Container';
 import { BorderAllOutlined } from '@material-ui/icons';
 
@@ -16,6 +18,7 @@ import CloseIcon from '@material-ui/icons/Close';
 
 import { getUrl } from "@Src/getUrl";
 import { getUserId } from "@Src/verifyLogin";
+import { Icon } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,6 +46,9 @@ const useStyles = makeStyles((theme) => ({
   contributors: {
     fontSize: 10,
   },
+  editDelete:{
+    display: 'flex'
+  },
   controls: {
     display: 'flex',
     paddingBottom: "5px",
@@ -54,7 +60,9 @@ const useStyles = makeStyles((theme) => ({
     width: 30,
   },
   deleteIcon: {
-    float: 'right'
+    float: 'right',
+  },
+  editIcon: {
   }
 }));
 
@@ -62,7 +70,8 @@ export default function songCard({
   id,
   obj,
   playMusicHooks,
-  deleteOnClick
+  deleteOnClick,
+  editOnClick,
 }) {
 
   const [isFavoritedVal, setIsFavoritedVal] = useState(obj.isFavorited)
@@ -127,11 +136,18 @@ export default function songCard({
 
   return (
     <Card className={classes.root}>
+      <div className={classes.editDelete}>
+        {editOnClick == null ? null :
+        <EditSong className= {classes.editIcon}
+          obj={obj}
+        />
+      }
       {deleteOnClick == null ? null :
         <IconButton className={classes.deleteIcon} onClick={() => {deleteOnClick(obj)}} aria-label="delete">
           <CloseIcon className={classes.playIcon} />
         </IconButton>
       }
+      </div>
       <div className={classes.mediaContainer}>
         <CardMedia
           className={classes.cover}
