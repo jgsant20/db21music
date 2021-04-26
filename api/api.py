@@ -93,6 +93,27 @@ def test():
   print(get_json_from_query("SELECT * FROM songs"))
   return "testing..."
 
+@app.route('/api/reports', methods=['GET'])
+def getReports():
+  userID = request.values.get('userID')
+  print(userID)
+
+  userCount = get_json_from_query("SELECT COUNT(*) FROM User")[0]['COUNT(*)']
+  songLengthCount = get_json_from_query("""SELECT SUM(songLength) FROM Song WHERE userID = {} """.format(userID))[0]['SUM(songLength)']
+  songCount = get_json_from_query("""SELECT COUNT(*) FROM Song WHERE userID = {} """.format(userID))[0]['COUNT(*)']
+  totalSongCount = get_json_from_query("SELECT COUNT(*) FROM Song")[0]['COUNT(*)']
+
+  dataToReturn = {
+    "userCount": userCount,
+    "songLengthCount": songLengthCount,
+    "songCount": songCount,
+    "totalSongCount": totalSongCount
+  }
+
+  print(dataToReturn)
+
+  return json.dumps(dataToReturn)
+
 @app.route('/api/login', methods=['POST'])
 def login():
   query_login = get_json_from_query('SELECT * FROM User WHERE username="{}" && password="{}"'.format(request.form['username'], md5_sha_hash(request.form['password'])))
