@@ -8,6 +8,7 @@ import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
 import FavoriteRoundedIcon from '@material-ui/icons/FavoriteRounded';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
+import BusinessIcon from '@material-ui/icons/Business';
 
 import { checkAuth } from "@Src/verifyLogin";
 
@@ -35,6 +36,7 @@ const LeftNavBar = () => {
           <>  
             <NavigationButton header="Upload" linkTo={`${path}/songsubmission`} IconComponent={PublishRoundedIcon}/>
             <NavigationButton header="My Songs" linkTo={`${path}/mysongs`} IconComponent={LibraryMusicIcon}/>
+            <NavigationButton header="My Reports" linkTo={`${path}/myreports`} IconComponent={BusinessIcon}/>
           </>
         )}
       </List>
